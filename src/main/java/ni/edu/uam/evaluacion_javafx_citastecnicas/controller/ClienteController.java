@@ -1,9 +1,9 @@
-package ni.edu.uam.evaluacion_javafx_citastecnicas;
+package ni.edu.uam.evaluacion_javafx_citastecnicas.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class ClienteController {
     @FXML
     private Label welcomeText;
 
