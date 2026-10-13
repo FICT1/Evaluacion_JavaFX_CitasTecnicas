@@ -1,16 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.ClienteController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<BorderPane prefHeight="650.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.MainController">
+    <top>
+        <VBox style="-fx-background-color: #1E293B; -fx-padding: 15;">
+            <children>
+                <Label text="TecnoAsistencia Nicaragua S.A." style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Label text="Sistema de Gestión de Citas y Atención Técnica" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px;" />
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Gestión de Clientes">
+                    <content>
+                        <fx:include source="ClienteView.fxml" />
+                    </content>
+                </Tab>
+                <Tab text="Gestión de Citas Técnicas">
+                    <content>
+                        <fx:include source="CitaView.fxml" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+    <bottom>
+        <HBox style="-fx-background-color: #F1F5F9; -fx-padding: 8 15;" alignment="CENTER_LEFT">
+            <children>
+                <Label fx:id="lblEstadoConexion" text="Comprobando conexión..." style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
