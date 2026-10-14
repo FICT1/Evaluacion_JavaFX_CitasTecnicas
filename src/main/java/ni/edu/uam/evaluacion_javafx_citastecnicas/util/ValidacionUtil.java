@@ -30,6 +30,16 @@ public class ValidacionUtil {
     // Código de error de PostgreSQL para violación de clave foránea
     public static final String SQLSTATE_CLAVE_FORANEA = "23503";
 
+    /**
+     * Indica si el error se debe a que no hay conexión con la base de datos (servidor apagado, base inexistente
+     * o credenciales incorrectas), y no a un problema de la consulta. SQLState 08xxx: conexión;
+     * 3D000: base de datos inexistente; 28xxx: autenticación.
+     */
+    public static boolean esErrorDeConexion(java.sql.SQLException e) {
+        String estado = e.getSQLState();
+        return estado != null && (estado.startsWith("08") || estado.equals("3D000") || estado.startsWith("28"));
+    }
+
     // ---- Reglas de agenda de citas ----
     /** Las citas se pueden registrar desde 1 año atrás (historial) hasta 1 año adelante (agenda). */
     public static final int MESES_RANGO_CITAS = 12;
@@ -99,7 +109,7 @@ public class ValidacionUtil {
      *     <li>la fecha debe estar dentro del rango permitido (1 año atrás / 1 año adelante);</li>
      *     <li>la hora debe estar dentro del horario de atención;</li>
      *     <li>una cita Pendiente no puede estar en el pasado;</li>
-     *     <li>una cita En proceso o Finalizada no puede estar en el futuro.</li>
+     *     <li>una cita En proceso o Finalizada no puede tener una fecha futura (el mismo día sí se permite).</li>
      * </ul>
      * Recibe "ahora" como parámetro para que la regla sea comprobable con cualquier fecha.
      */
@@ -126,8 +136,9 @@ public class ValidacionUtil {
                 }
             }
             case "En proceso", "Finalizada" -> {
-                if (momento.isAfter(ahora)) {
-                    throw new IllegalArgumentException("Una cita " + estado + " no puede tener una fecha y hora futuras: "
+                // Se compara solo la fecha: el mismo día el técnico puede atender antes de la hora agendada
+                if (fecha.isAfter(hoy)) {
+                    throw new IllegalArgumentException("Una cita " + estado + " no puede tener una fecha futura: "
                             + "todavía no ha ocurrido. Use el estado Pendiente para agendarla.");
                 }
             }
