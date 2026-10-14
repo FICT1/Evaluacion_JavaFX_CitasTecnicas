@@ -23,21 +23,18 @@ public class MainController {
     @FXML
     private Tab tabCitas;
 
-    // Controlador de la vista incluida con fx:id="citaView" (JavaFX lo inyecta como citaViewController)
     @FXML
     private CitaController citaViewController;
 
     @FXML
     public void initialize() {
-        // Al entrar a la pestaña de citas se recargan clientes y citas para reflejar
-        // los cambios hechos en la pestaña de clientes (por ejemplo, un nombre editado)
+
         tabCitas.selectedProperty().addListener((observable, anterior, seleccionada) -> {
             if (seleccionada) {
                 citaViewController.refrescar();
             }
         });
 
-        // El color del indicador lo definen las clases indicador-ok / indicador-error de styles.css
         if (DatabaseConnection.probarConexion()) {
             lblEstadoConexion.setText("Conectado a gestion_citas");
             indicadorConexion.getStyleClass().add("indicador-ok");
@@ -46,7 +43,6 @@ public class MainController {
             lblEstadoConexion.setText("Sin conexión a la base de datos");
             indicadorConexion.getStyleClass().add("indicador-error");
             Tooltip.install(pildoraConexion, new Tooltip("Verifique que PostgreSQL esté encendido y que las credenciales sean correctas."));
-            // Un único aviso al abrir; las recargas automáticas de las tablas no lo repiten
             AlertUtil.mostrarError("Sin conexión",
                     "No se pudo conectar con la base de datos gestion_citas.\n\n"
                             + "Verifique que PostgreSQL esté encendido, que la base de datos exista y que las "

@@ -59,16 +59,12 @@ public class CitaController {
         cargarCitas();
         configurarFiltros();
 
-        // Recarga los clientes cada vez que se despliega el ComboBox para incluir
-        // los registrados o modificados en la pestaña de clientes sin reiniciar la aplicación
         cmbCliente.setOnShowing(event -> cargarClientes());
 
-        // Escucha la selección de la tabla para que funcione tanto con el ratón como con el teclado
         tblCitas.getSelectionModel().selectedItemProperty().addListener(
                 (observable, anterior, nueva) -> seleccionarCita(nueva));
     }
 
-    /** Recarga clientes y citas desde la base de datos conservando los filtros activos. */
     public void refrescar() {
         cargarClientes();
         cargarCitas();
@@ -82,13 +78,11 @@ public class CitaController {
         colServicio.setCellValueFactory(new PropertyValueFactory<>("tipoServicio"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        // Formato legible: fecha dd/MM/yyyy, hora HH:mm y estado como etiqueta de color
         colFecha.setCellFactory(CeldasUtil.fecha());
         colHora.setCellFactory(CeldasUtil.hora());
         colEstado.setCellFactory(CeldasUtil.estadoCita());
     }
 
-    // Restricciones de teclado según el tipo de dato y la longitud de cada columna
     private void configurarEntradas() {
         EntradaUtil.hora(txtHora);
         EntradaUtil.longitudMaxima(txtTipoServicio, 80);
@@ -96,7 +90,6 @@ public class CitaController {
         EntradaUtil.fecha(dpFecha);
         EntradaUtil.fecha(dpFiltroFecha);
 
-        // En el calendario de la cita se deshabilitan los días fuera del rango permitido
         dpFecha.setDayCellFactory(selector -> new DateCell() {
             @Override
             public void updateItem(LocalDate dia, boolean vacio) {
@@ -110,7 +103,6 @@ public class CitaController {
         });
     }
 
-    // Las opciones de estado salen de una sola fuente: CitaTecnica.ESTADOS_PERMITIDOS
     private void cargarEstados() {
         cmbEstado.setItems(FXCollections.observableArrayList(CitaTecnica.ESTADOS_PERMITIDOS));
 
@@ -124,17 +116,13 @@ public class CitaController {
             List<Cliente> clientes = clienteDAO.listarActivos();
             cmbCliente.setItems(FXCollections.observableArrayList(clientes));
         } catch (SQLException e) {
-            // Sin conexión no se repite el aviso en cada recarga: la barra superior ya lo indica
             if (!ValidacionUtil.esErrorDeConexion(e)) {
                 AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
             }
         }
     }
 
-    /**
-     * Consulta las citas en la base de datos aplicando los filtros activos,
-     * de modo que se conservan al recargar tras guardar, actualizar o eliminar.
-     */
+
     private void cargarCitas() {
         LocalDate fechaFiltro = dpFiltroFecha.getValue();
         String estadoFiltro = cmbFiltroEstado.getValue();
@@ -142,21 +130,18 @@ public class CitaController {
             estadoFiltro = null;
         }
 
-        // Al recargar la tabla se pierde la selección; se recuerda para restaurarla
         Integer idSeleccionado = citaSeleccionada != null ? citaSeleccionada.getId() : null;
         try {
             listaCitas.setAll(citaDAO.filtrar(fechaFiltro, estadoFiltro));
             tblCitas.setItems(listaCitas);
             if (idSeleccionado != null) {
-                // Si la cita sigue visible se vuelve a seleccionar con sus datos actualizados; si no (por ejemplo,
-                // la oculta un filtro) se limpia el formulario para no dejar datos que se puedan guardar duplicados
+
                 listaCitas.stream()
                         .filter(c -> idSeleccionado.equals(c.getId()))
                         .findFirst()
                         .ifPresentOrElse(c -> tblCitas.getSelectionModel().select(c), this::limpiar);
             }
         } catch (SQLException e) {
-            // Sin conexión no se repite el aviso en cada recarga: la barra superior ya lo indica
             if (!ValidacionUtil.esErrorDeConexion(e)) {
                 AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar las citas: " + e.getMessage());
             }
@@ -176,7 +161,6 @@ public class CitaController {
 
     @FXML
     private void guardar() {
-        // Guardar registra una cita NUEVA; con una cita seleccionada se duplicaría
         if (citaSeleccionada != null) {
             AlertUtil.mostrarAdvertencia("Cita seleccionada",
                     "Está viendo una cita existente. Para guardar sus cambios use Actualizar; "
@@ -185,8 +169,7 @@ public class CitaController {
         }
         try {
             CitaTecnica nuevaCita = construirCitaDesdeFormulario();
-            // Solo se agendan citas nuevas para clientes activos (el formulario puede traer
-            // un cliente inactivo si se seleccionó una cita antigua y se presionó Guardar)
+
             if (!nuevaCita.getCliente().isActivo()) {
                 throw new IllegalArgumentException("El cliente " + nuevaCita.getNombreCliente()
                         + " está inactivo. Actívelo en la pestaña Clientes para registrarle nuevas citas.");
@@ -212,8 +195,7 @@ public class CitaController {
         try {
             CitaTecnica citaActualizada = construirCitaDesdeFormulario();
             citaActualizada.setId(citaSeleccionada.getId());
-            // Las reglas de fecha/hora solo se exigen si cambió la fecha, la hora o el estado; así se puede
-            // corregir, por ejemplo, la descripción de una cita antigua sin que la agenda lo impida
+
             boolean cambioAgenda = !citaActualizada.getFecha().equals(citaSeleccionada.getFecha())
                     || !citaActualizada.getHora().equals(citaSeleccionada.getHora())
                     || !citaActualizada.getEstado().equals(citaSeleccionada.getEstado())
@@ -232,11 +214,7 @@ public class CitaController {
         }
     }
 
-    /**
-     * Reglas de agenda: fecha dentro del rango, hora dentro del horario de atención, estado coherente
-     * con la fecha (no se finaliza algo futuro ni se deja pendiente algo pasado) y sin choques de horario
-     * para el mismo cliente. idExcluido es el id de la cita que se edita (0 si es nueva).
-     */
+
     private void validarReglasDeAgenda(CitaTecnica cita, int idExcluido) throws SQLException {
         ValidacionUtil.fechaHoraCita(cita.getFecha(), cita.getHora(), cita.getEstado(), LocalDateTime.now());
 
@@ -248,10 +226,7 @@ public class CitaController {
         }
     }
 
-    /**
-     * Muestra el error SQL con un mensaje comprensible. Si la clave foránea rechaza la operación
-     * es porque el cliente seleccionado fue eliminado mientras se llenaba el formulario.
-     */
+
     private void mostrarErrorSQL(String accion, SQLException e) {
         if (ValidacionUtil.SQLSTATE_CLAVE_FORANEA.equals(e.getSQLState())) {
             AlertUtil.mostrarAdvertencia("Cliente inexistente", accion + ": el cliente seleccionado ya no existe en la base de datos.");
@@ -297,8 +272,6 @@ public class CitaController {
     private void seleccionarCita(CitaTecnica cita) {
         citaSeleccionada = cita;
         if (citaSeleccionada != null) {
-            // Si el cliente de la cita no está en la lista (por ejemplo, está inactivo)
-            // se muestra igualmente para no reasignar la cita a otro cliente por error
             Cliente clienteCita = citaSeleccionada.getCliente();
             for (Cliente c : cmbCliente.getItems()) {
                 if (c.getId() == clienteCita.getId()) {
@@ -308,8 +281,6 @@ public class CitaController {
             }
             cmbCliente.setValue(clienteCita);
             dpFecha.setValue(citaSeleccionada.getFecha());
-            // Se vacían los campos antes de escribir para no dejar datos de la cita anterior
-            // si un valor guardado no cumple las restricciones de entrada
             txtHora.clear();
             txtTipoServicio.clear();
             txtDescripcion.clear();
@@ -336,8 +307,6 @@ public class CitaController {
 
         LocalTime hora;
         try {
-            // "H:mm" acepta la hora con o sin cero inicial (9:05 y 09:05);
-            // STRICT rechaza valores fuera de rango como 24:00 en lugar de convertirlos
             hora = LocalTime.parse(horaTexto.trim(),
                     DateTimeFormatter.ofPattern("H:mm").withResolverStyle(ResolverStyle.STRICT));
         } catch (DateTimeParseException e) {
