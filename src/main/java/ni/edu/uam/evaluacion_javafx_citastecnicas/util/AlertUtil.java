@@ -3,17 +3,28 @@ package ni.edu.uam.evaluacion_javafx_citastecnicas.util;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+import java.net.URL;
 import java.util.Optional;
 
 public class AlertUtil {
 
+    // Hoja de estilos compartida con la ventana principal para que las alertas mantengan el mismo diseño
+    private static final URL ESTILOS = AlertUtil.class.getResource("/ni/edu/uam/evaluacion_javafx_citastecnicas/styles.css");
+
     // 1. MÉTODO CENTRALIZADO: Cumple la regla estricta de no repetir código
-    private static void crearAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
+    private static Alert nuevaAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
-        alert.showAndWait();
+        if (ESTILOS != null) {
+            alert.getDialogPane().getStylesheets().add(ESTILOS.toExternalForm());
+        }
+        return alert;
+    }
+
+    private static void crearAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
+        nuevaAlerta(tipo, titulo, mensaje).showAndWait();
     }
 
     // --- MÉTODOS DE INFORMACIÓN ---
@@ -46,11 +57,7 @@ public class AlertUtil {
 
     // --- MÉTODOS DE CONFIRMACIÓN ---
     public static boolean mostrarConfirmacion(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        Optional<ButtonType> result = alert.showAndWait();
+        Optional<ButtonType> result = nuevaAlerta(Alert.AlertType.CONFIRMATION, titulo, mensaje).showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
