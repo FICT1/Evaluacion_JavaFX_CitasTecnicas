@@ -10,12 +10,15 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.model.CitaTecnica;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.CeldasUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.EntradaUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 
 public class CitaController {
@@ -49,6 +52,7 @@ public class CitaController {
         clienteDAO = new ClienteDAO();
 
         configurarColumnas();
+        configurarEntradas();
         cargarEstados();
         cargarClientes();
         cargarCitas();
@@ -81,6 +85,15 @@ public class CitaController {
         colFecha.setCellFactory(CeldasUtil.fecha());
         colHora.setCellFactory(CeldasUtil.hora());
         colEstado.setCellFactory(CeldasUtil.estadoCita());
+    }
+
+    // Restricciones de teclado según el tipo de dato y la longitud de cada columna
+    private void configurarEntradas() {
+        EntradaUtil.hora(txtHora);
+        EntradaUtil.longitudMaxima(txtTipoServicio, 80);
+        EntradaUtil.longitudMaxima(txtDescripcion, 255);
+        EntradaUtil.fecha(dpFecha);
+        EntradaUtil.fecha(dpFiltroFecha);
     }
 
     // Las opciones de estado salen de una sola fuente: CitaTecnica.ESTADOS_PERMITIDOS
@@ -226,7 +239,12 @@ public class CitaController {
             }
             cmbCliente.setValue(clienteCita);
             dpFecha.setValue(citaSeleccionada.getFecha());
-            txtHora.setText(citaSeleccionada.getHora().toString());
+            // Se vacían los campos antes de escribir para no dejar datos de la cita anterior
+            // si un valor guardado no cumple las restricciones de entrada
+            txtHora.clear();
+            txtTipoServicio.clear();
+            txtDescripcion.clear();
+            txtHora.setText(citaSeleccionada.getHora().format(DateTimeFormatter.ofPattern("HH:mm")));
             txtTipoServicio.setText(citaSeleccionada.getTipoServicio());
             txtDescripcion.setText(citaSeleccionada.getDescripcion());
             cmbEstado.setValue(citaSeleccionada.getEstado());
@@ -243,7 +261,10 @@ public class CitaController {
 
         LocalTime hora;
         try {
-            hora = LocalTime.parse(horaTexto.trim());
+            // "H:mm" acepta la hora con o sin cero inicial (9:05 y 09:05);
+            // STRICT rechaza valores fuera de rango como 24:00 en lugar de convertirlos
+            hora = LocalTime.parse(horaTexto.trim(),
+                    DateTimeFormatter.ofPattern("H:mm").withResolverStyle(ResolverStyle.STRICT));
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Formato de hora incorrecto. Use HH:mm (ej. 14:30).");
         }
