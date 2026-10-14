@@ -117,6 +117,19 @@ public class ClienteDAO {
         }
     }
 
+    /** Cuenta las citas del cliente que todavía no terminan: Pendiente o En proceso. */
+    public int contarCitasSinTerminar(int clienteId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ? AND estado IN ('Pendiente', 'En proceso')";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, clienteId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
     public boolean tieneCitasAsociadas(int clienteId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();

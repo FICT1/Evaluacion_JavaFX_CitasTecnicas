@@ -125,8 +125,19 @@ public class ClienteController {
             Cliente actualizado = construirClienteDesdeFormulario();
             actualizado.setId(clienteSeleccionado.getId());
             validarCorreoUnico(actualizado.getCorreo(), actualizado.getId());
+
+            boolean seMantuvoActivo = false;
+            if (clienteSeleccionado.isActivo() && !actualizado.isActivo() && !confirmarDesactivacion(actualizado)) {
+                // El usuario decidió no desactivarlo: se guardan los demás cambios y el cliente sigue activo
+                actualizado.setActivo(true);
+                chkActivo.setSelected(true);
+                seMantuvoActivo = true;
+            }
+
             clienteDAO.actualizar(actualizado);
-            AlertUtil.mostrarInfo("Éxito", "Cliente actualizado correctamente.");
+            AlertUtil.mostrarInfo("Éxito", seMantuvoActivo
+                    ? "Cliente actualizado correctamente. Se mantuvo activo."
+                    : "Cliente actualizado correctamente.");
             limpiarFormulario();
             cargarClientes();
         } catch (IllegalArgumentException e) {
@@ -134,6 +145,30 @@ public class ClienteController {
         } catch (SQLException e) {
             mostrarErrorSQL("No se pudo actualizar el cliente", e);
         }
+    }
+
+    /**
+     * Si el cliente que se quiere desactivar tiene citas Pendientes o En proceso, explica las consecuencias
+     * y pregunta si desea continuar. Devuelve true si se puede desactivar.
+     */
+    private boolean confirmarDesactivacion(Cliente cliente) throws SQLException {
+        int citasSinTerminar = clienteDAO.contarCitasSinTerminar(cliente.getId());
+        if (citasSinTerminar == 0) {
+            return true;
+        }
+
+        String citas = citasSinTerminar == 1
+                ? "1 cita pendiente o en proceso"
+                : citasSinTerminar + " citas pendientes o en proceso";
+        return AlertUtil.mostrarConfirmacion(
+                "Cliente con citas pendientes",
+                "El cliente " + cliente.getNombreCompleto() + " tiene " + citas + ".\n\n"
+                        + "Si lo desactiva, esas citas se conservan y se pueden seguir atendiendo, "
+                        + "pero no podrá registrarle citas nuevas hasta volver a activarlo.\n\n"
+                        + "¿Desea desactivarlo de todos modos?",
+                "Sí, desactivar",
+                "No, mantener activo"
+        );
     }
 
     private void validarCorreoUnico(String correo, int idExcluido) throws SQLException {
