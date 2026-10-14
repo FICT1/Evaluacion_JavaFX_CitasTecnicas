@@ -3,12 +3,21 @@ package ni.edu.uam.evaluacion_javafx_citastecnicas.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.DatabaseConnection;
 
 public class MainController {
 
     @FXML
     private Label lblEstadoConexion;
+
+    @FXML
+    private Region indicadorConexion;
+
+    @FXML
+    private HBox pildoraConexion;
 
     @FXML
     private Tab tabCitas;
@@ -27,12 +36,15 @@ public class MainController {
             }
         });
 
+        // El color del indicador lo definen las clases indicador-ok / indicador-error de styles.css
         if (DatabaseConnection.probarConexion()) {
-            lblEstadoConexion.setText("Estado BD: Conectado a PostgreSQL (gestion_citas)");
-            lblEstadoConexion.setStyle("-fx-text-fill: #16A34A; -fx-font-size: 12px; -fx-font-weight: bold;");
+            lblEstadoConexion.setText("Conectado a gestion_citas");
+            indicadorConexion.getStyleClass().add("indicador-ok");
+            Tooltip.install(pildoraConexion, new Tooltip("Conexión activa con PostgreSQL."));
         } else {
-            lblEstadoConexion.setText("Estado BD: Sin conexión");
-            lblEstadoConexion.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 12px; -fx-font-weight: bold;");
+            lblEstadoConexion.setText("Sin conexión a la base de datos");
+            indicadorConexion.getStyleClass().add("indicador-error");
+            Tooltip.install(pildoraConexion, new Tooltip("Verifique que PostgreSQL esté encendido y que las credenciales sean correctas."));
         }
     }
 }

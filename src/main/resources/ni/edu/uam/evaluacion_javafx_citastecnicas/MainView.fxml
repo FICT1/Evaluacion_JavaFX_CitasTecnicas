@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="650.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.MainController">
+<BorderPane prefHeight="720.0" prefWidth="1200.0" stylesheets="@styles.css" styleClass="ventana"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.MainController">
+
+    <!-- Franja superior navy: marca y estado de la conexión -->
     <top>
-        <VBox style="-fx-background-color: #1E293B; -fx-padding: 15;">
-            <children>
-                <Label text="TecnoAsistencia Nicaragua S.A." style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
-                <Label text="Sistema de Gestión de Citas y Atención Técnica" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px;" />
-            </children>
-        </VBox>
+        <HBox alignment="CENTER_LEFT" styleClass="encabezado">
+            <StackPane styleClass="logo">
+                <Label text="TA" styleClass="logo-texto" />
+            </StackPane>
+            <VBox alignment="CENTER_LEFT" spacing="1">
+                <Label text="TecnoAsistencia Nicaragua S.A." styleClass="marca-titulo" />
+                <Label text="Gestión de citas de atención técnica" styleClass="marca-subtitulo" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox fx:id="pildoraConexion" alignment="CENTER_LEFT" styleClass="pildora-conexion">
+                <Region fx:id="indicadorConexion" styleClass="indicador" />
+                <Label fx:id="lblEstadoConexion" text="Comprobando conexión..." styleClass="texto-estado" />
+            </HBox>
+        </HBox>
     </top>
+
+    <!-- Pestañas tipo carpeta sobre la franja navy; la activa se une con el contenido -->
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE">
-            <tabs>
-                <Tab text="Gestión de Clientes">
-                    <content>
-                        <fx:include source="ClienteView.fxml" />
-                    </content>
-                </Tab>
-                <Tab fx:id="tabCitas" text="Gestión de Citas Técnicas">
-                    <content>
-                        <fx:include fx:id="citaView" source="CitaView.fxml" />
-                    </content>
-                </Tab>
-            </tabs>
+        <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="pestanas">
+            <Tab text="Clientes">
+                <graphic>
+                    <Region styleClass="icono, icono-clientes" />
+                </graphic>
+                <fx:include source="ClienteView.fxml" />
+            </Tab>
+            <Tab fx:id="tabCitas" text="Citas técnicas">
+                <graphic>
+                    <Region styleClass="icono, icono-citas" />
+                </graphic>
+                <fx:include fx:id="citaView" source="CitaView.fxml" />
+            </Tab>
         </TabPane>
     </center>
-    <bottom>
-        <HBox style="-fx-background-color: #F1F5F9; -fx-padding: 8 15;" alignment="CENTER_LEFT">
-            <children>
-                <Label fx:id="lblEstadoConexion" text="Comprobando conexión..." style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;" />
-            </children>
-        </HBox>
-    </bottom>
 </BorderPane>

@@ -13,8 +13,9 @@ public class MainApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("MainView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("TecnoAsistencia Nicaragua - Gestión de Citas Técnicas");
-        stage.setMinWidth(950);
-        stage.setMinHeight(650);
+        stage.setMinWidth(1080);
+        stage.setMinHeight(680);
+        stage.setMaximized(true);
         stage.setScene(scene);
         stage.show();
     }
