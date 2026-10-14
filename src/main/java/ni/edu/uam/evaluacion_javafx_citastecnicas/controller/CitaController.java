@@ -15,6 +15,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -94,6 +95,19 @@ public class CitaController {
         EntradaUtil.longitudMaxima(txtDescripcion, 255);
         EntradaUtil.fecha(dpFecha);
         EntradaUtil.fecha(dpFiltroFecha);
+
+        // En el calendario de la cita se deshabilitan los días fuera del rango permitido
+        dpFecha.setDayCellFactory(selector -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate dia, boolean vacio) {
+                super.updateItem(dia, vacio);
+                LocalDate hoy = LocalDate.now();
+                if (!vacio && dia != null && (dia.isBefore(ValidacionUtil.fechaMinimaCita(hoy))
+                        || dia.isAfter(ValidacionUtil.fechaMaximaCita(hoy)))) {
+                    setDisable(true);
+                }
+            }
+        });
     }
 
     // Las opciones de estado salen de una sola fuente: CitaTecnica.ESTADOS_PERMITIDOS
@@ -148,6 +162,13 @@ public class CitaController {
     private void guardar() {
         try {
             CitaTecnica nuevaCita = construirCitaDesdeFormulario();
+            // Solo se agendan citas nuevas para clientes activos (el formulario puede traer
+            // un cliente inactivo si se seleccionó una cita antigua y se presionó Guardar)
+            if (!nuevaCita.getCliente().isActivo()) {
+                throw new IllegalArgumentException("El cliente " + nuevaCita.getNombreCliente()
+                        + " está inactivo. Actívelo en la pestaña Clientes para registrarle nuevas citas.");
+            }
+            validarReglasDeAgenda(nuevaCita, 0);
             citaDAO.guardar(nuevaCita);
             AlertUtil.mostrarInfo("Éxito", "Cita registrada exitosamente.");
             limpiar();
@@ -168,6 +189,15 @@ public class CitaController {
         try {
             CitaTecnica citaActualizada = construirCitaDesdeFormulario();
             citaActualizada.setId(citaSeleccionada.getId());
+            // Las reglas de fecha/hora solo se exigen si cambió la fecha, la hora o el estado; así se puede
+            // corregir, por ejemplo, la descripción de una cita antigua sin que la agenda lo impida
+            boolean cambioAgenda = !citaActualizada.getFecha().equals(citaSeleccionada.getFecha())
+                    || !citaActualizada.getHora().equals(citaSeleccionada.getHora())
+                    || !citaActualizada.getEstado().equals(citaSeleccionada.getEstado())
+                    || citaActualizada.getCliente().getId() != citaSeleccionada.getCliente().getId();
+            if (cambioAgenda) {
+                validarReglasDeAgenda(citaActualizada, citaActualizada.getId());
+            }
             citaDAO.actualizar(citaActualizada);
             AlertUtil.mostrarInfo("Éxito", "Cita actualizada exitosamente.");
             limpiar();
@@ -176,6 +206,22 @@ public class CitaController {
             AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
             mostrarErrorSQL("Error al actualizar la cita", e);
+        }
+    }
+
+    /**
+     * Reglas de agenda: fecha dentro del rango, hora dentro del horario de atención, estado coherente
+     * con la fecha (no se finaliza algo futuro ni se deja pendiente algo pasado) y sin choques de horario
+     * para el mismo cliente. idExcluido es el id de la cita que se edita (0 si es nueva).
+     */
+    private void validarReglasDeAgenda(CitaTecnica cita, int idExcluido) throws SQLException {
+        ValidacionUtil.fechaHoraCita(cita.getFecha(), cita.getHora(), cita.getEstado(), LocalDateTime.now());
+
+        if (!"Cancelada".equals(cita.getEstado())
+                && citaDAO.existeCitaEnHorario(cita.getCliente().getId(), cita.getFecha(), cita.getHora(), idExcluido)) {
+            throw new IllegalArgumentException("El cliente " + cita.getNombreCliente() + " ya tiene una cita el "
+                    + cita.getFecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " a las "
+                    + cita.getHora().format(DateTimeFormatter.ofPattern("HH:mm")) + ". Elija otra fecha u hora.");
         }
     }
 
@@ -254,7 +300,13 @@ public class CitaController {
     private CitaTecnica construirCitaDesdeFormulario() {
         Cliente cliente = cmbCliente.getValue();
         if (cliente == null || cliente.getId() <= 0) throw new IllegalArgumentException("Debe seleccionar un cliente registrado.");
-        if (dpFecha.getValue() == null) throw new IllegalArgumentException("Debe seleccionar una fecha para la cita.");
+        if (dpFecha.getValue() == null) {
+            String textoFecha = dpFecha.getEditor().getText();
+            if (textoFecha != null && !textoFecha.isBlank()) {
+                throw new IllegalArgumentException("La fecha '" + textoFecha.trim() + "' no es válida. Use el formato dd/mm/aaaa (ej. 15/10/2026) o elíjala en el calendario.");
+            }
+            throw new IllegalArgumentException("Debe seleccionar una fecha para la cita.");
+        }
 
         String horaTexto = txtHora.getText();
         if (horaTexto == null || horaTexto.trim().isEmpty()) throw new IllegalArgumentException("El campo hora no puede estar vacío.");

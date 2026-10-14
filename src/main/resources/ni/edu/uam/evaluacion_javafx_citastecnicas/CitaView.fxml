@@ -43,7 +43,7 @@
                             <TextField fx:id="txtHora" promptText="Ej. 14:30" />
                         </VBox>
                     </HBox>
-                    <Label text="La hora se escribe en formato de 24 horas (HH:mm)." styleClass="ayuda" wrapText="true" minHeight="-Infinity" />
+                    <Label text="Formato de 24 horas (HH:mm). Horario de atención: 07:00 a 18:00." styleClass="ayuda" wrapText="true" minHeight="-Infinity" />
 
                     <VBox spacing="5">
                         <Label text="Tipo de servicio *" styleClass="etiqueta" />
