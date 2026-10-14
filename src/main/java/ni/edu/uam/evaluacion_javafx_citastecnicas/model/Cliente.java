@@ -7,12 +7,9 @@ public class Cliente {
     private String telefono;
     private String correo;
     private boolean activo;
-
-    // Constructor vacío
     public Cliente() {
     }
 
-    // Constructor sin ID (útil para guardar un nuevo cliente)
     public Cliente(String nombres, String apellidos, String telefono, String correo, boolean activo) {
         this.nombres = nombres;
         this.apellidos = apellidos;
@@ -21,7 +18,7 @@ public class Cliente {
         this.activo = activo;
     }
 
-    // Constructor completo con ID
+
     public Cliente(int id, String nombres, String apellidos, String telefono, String correo, boolean activo) {
         this.id = id;
         this.nombres = nombres;
@@ -31,7 +28,6 @@ public class Cliente {
         this.activo = activo;
     }
 
-    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -80,7 +76,6 @@ public class Cliente {
         this.activo = activo;
     }
 
-    // Método auxiliar para obtener nombre completo
     public String getNombreCompleto() {
         return (nombres != null ? nombres : "") + " " + (apellidos != null ? apellidos : "");
     }
