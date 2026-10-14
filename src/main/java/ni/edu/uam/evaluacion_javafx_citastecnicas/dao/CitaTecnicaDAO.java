@@ -4,6 +4,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 public class CitaTecnicaDAO {
@@ -25,40 +26,68 @@ public class CitaTecnicaDAO {
     }
 
     public List<CitaTecnica> listar() throws SQLException {
+        return filtrar(null, null);
+    }
+
+    /**
+     * Lista las citas aplicando los filtros indicados. Un filtro nulo no se aplica.
+     * Los valores siempre se envían como parámetros del PreparedStatement.
+     */
+    public List<CitaTecnica> filtrar(LocalDate fecha, String estado) throws SQLException {
         List<CitaTecnica> lista = new ArrayList<>();
         // Consulta JOIN requerida para traer los datos de la cita y su cliente asociado
-        String sql = "SELECT c.id, c.fecha, c.hora, c.tipo_servicio, c.descripcion, c.estado, " +
+        StringBuilder sql = new StringBuilder(
+                "SELECT c.id, c.fecha, c.hora, c.tipo_servicio, c.descripcion, c.estado, " +
                 "cl.id AS cliente_id, cl.nombres, cl.apellidos, cl.telefono, cl.correo, cl.activo " +
-                "FROM cita_tecnica c INNER JOIN cliente cl ON c.cliente_id = cl.id ORDER BY c.id ASC";
+                "FROM cita_tecnica c INNER JOIN cliente cl ON c.cliente_id = cl.id WHERE 1 = 1");
+
+        List<Object> parametros = new ArrayList<>();
+        if (fecha != null) {
+            sql.append(" AND c.fecha = ?");
+            parametros.add(Date.valueOf(fecha));
+        }
+        if (estado != null) {
+            sql.append(" AND c.estado = ?");
+            parametros.add(estado);
+        }
+        sql.append(" ORDER BY c.id ASC");
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 
-            while (rs.next()) {
-                // 1. Construir el objeto Cliente a partir del JOIN
-                Cliente cliente = new Cliente();
-                cliente.setId(rs.getInt("cliente_id"));
-                cliente.setNombres(rs.getString("nombres"));
-                cliente.setApellidos(rs.getString("apellidos"));
-                cliente.setTelefono(rs.getString("telefono"));
-                cliente.setCorreo(rs.getString("correo"));
-                cliente.setActivo(rs.getBoolean("activo"));
+            for (int i = 0; i < parametros.size(); i++) {
+                pstmt.setObject(i + 1, parametros.get(i));
+            }
 
-                // 2. Construir el objeto CitaTecnica incluyendo el cliente referenciado
-                CitaTecnica cita = new CitaTecnica(
-                        rs.getInt("id"),
-                        cliente,
-                        rs.getDate("fecha").toLocalDate(),
-                        rs.getTime("hora").toLocalTime(),
-                        rs.getString("tipo_servicio"),
-                        rs.getString("descripcion"),
-                        rs.getString("estado")
-                );
-                lista.add(cita);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearCita(rs));
+                }
             }
         }
         return lista;
+    }
+
+    private CitaTecnica mapearCita(ResultSet rs) throws SQLException {
+        // 1. Construir el objeto Cliente a partir del JOIN
+        Cliente cliente = new Cliente();
+        cliente.setId(rs.getInt("cliente_id"));
+        cliente.setNombres(rs.getString("nombres"));
+        cliente.setApellidos(rs.getString("apellidos"));
+        cliente.setTelefono(rs.getString("telefono"));
+        cliente.setCorreo(rs.getString("correo"));
+        cliente.setActivo(rs.getBoolean("activo"));
+
+        // 2. Construir el objeto CitaTecnica incluyendo el cliente referenciado
+        return new CitaTecnica(
+                rs.getInt("id"),
+                cliente,
+                rs.getDate("fecha").toLocalDate(),
+                rs.getTime("hora").toLocalTime(),
+                rs.getString("tipo_servicio"),
+                rs.getString("descripcion"),
+                rs.getString("estado")
+        );
     }
 
     public void actualizar(CitaTecnica cita) throws SQLException {
