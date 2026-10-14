@@ -52,6 +52,10 @@ public class CitaController {
         cargarClientes();
         cargarCitas();
         configurarFiltros();
+
+        // Recarga los clientes cada vez que se despliega el ComboBox para incluir
+        // los registrados o modificados en la pestaña de clientes sin reiniciar la aplicación
+        cmbCliente.setOnShowing(event -> cargarClientes());
     }
 
     private void configurarColumnas() {
@@ -65,7 +69,7 @@ public class CitaController {
 
     private void cargarClientes() {
         try {
-            List<Cliente> clientes = clienteDAO.listar();
+            List<Cliente> clientes = clienteDAO.listarActivos();
             cmbCliente.setItems(FXCollections.observableArrayList(clientes));
         } catch (SQLException e) {
             AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
@@ -177,12 +181,16 @@ public class CitaController {
     private void seleccionarFila() {
         citaSeleccionada = tblCitas.getSelectionModel().getSelectedItem();
         if (citaSeleccionada != null) {
+            // Si el cliente de la cita no está en la lista (por ejemplo, está inactivo)
+            // se muestra igualmente para no reasignar la cita a otro cliente por error
+            Cliente clienteCita = citaSeleccionada.getCliente();
             for (Cliente c : cmbCliente.getItems()) {
-                if (c.getId() == citaSeleccionada.getCliente().getId()) {
-                    cmbCliente.setValue(c);
+                if (c.getId() == clienteCita.getId()) {
+                    clienteCita = c;
                     break;
                 }
             }
+            cmbCliente.setValue(clienteCita);
             dpFecha.setValue(citaSeleccionada.getFecha());
             txtHora.setText(citaSeleccionada.getHora().toString());
             txtTipoServicio.setText(citaSeleccionada.getTipoServicio());
