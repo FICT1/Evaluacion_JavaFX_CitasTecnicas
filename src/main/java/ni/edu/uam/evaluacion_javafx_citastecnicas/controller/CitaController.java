@@ -1,7 +1,6 @@
 package ni.edu.uam.evaluacion_javafx_citastecnicas.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -39,8 +38,7 @@ public class CitaController {
 
     private CitaTecnicaDAO citaDAO;
     private ClienteDAO clienteDAO;
-    private ObservableList<CitaTecnica> listaCitas;
-    private FilteredList<CitaTecnica> listaFiltrada;
+    private final ObservableList<CitaTecnica> listaCitas = FXCollections.observableArrayList();
     private CitaTecnica citaSeleccionada;
 
     @FXML
@@ -76,31 +74,28 @@ public class CitaController {
         }
     }
 
+    /**
+     * Consulta las citas en la base de datos aplicando los filtros activos,
+     * de modo que se conservan al recargar tras guardar, actualizar o eliminar.
+     */
     private void cargarCitas() {
+        LocalDate fechaFiltro = dpFiltroFecha.getValue();
+        String estadoFiltro = cmbFiltroEstado.getValue();
+        if ("Todos".equals(estadoFiltro)) {
+            estadoFiltro = null;
+        }
+
         try {
-            listaCitas = FXCollections.observableArrayList(citaDAO.listar());
-            listaFiltrada = new FilteredList<>(listaCitas, b -> true);
-            tblCitas.setItems(listaFiltrada);
+            listaCitas.setAll(citaDAO.filtrar(fechaFiltro, estadoFiltro));
+            tblCitas.setItems(listaCitas);
         } catch (SQLException e) {
             AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar las citas: " + e.getMessage());
         }
     }
 
     private void configurarFiltros() {
-        dpFiltroFecha.valueProperty().addListener((observable, oldValue, newValue) -> aplicarFiltros());
-        cmbFiltroEstado.valueProperty().addListener((observable, oldValue, newValue) -> aplicarFiltros());
-    }
-
-    private void aplicarFiltros() {
-        listaFiltrada.setPredicate(cita -> {
-            LocalDate fechaFiltro = dpFiltroFecha.getValue();
-            String estadoFiltro = cmbFiltroEstado.getValue();
-
-            boolean coincideFecha = (fechaFiltro == null) || cita.getFecha().equals(fechaFiltro);
-            boolean coincideEstado = (estadoFiltro == null || estadoFiltro.equals("Todos")) || cita.getEstado().equals(estadoFiltro);
-
-            return coincideFecha && coincideEstado;
-        });
+        dpFiltroFecha.valueProperty().addListener((observable, oldValue, newValue) -> cargarCitas());
+        cmbFiltroEstado.valueProperty().addListener((observable, oldValue, newValue) -> cargarCitas());
     }
 
     @FXML
