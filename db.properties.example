@@ -1,0 +1,5 @@
+# Copie este archivo como db.properties y escriba sus credenciales locales de PostgreSQL.
+# db.properties está en .gitignore: nunca se sube al repositorio.
+db.url=jdbc:postgresql://localhost:5432/gestion_citas
+db.usuario=postgres
+db.contrasena=SU_CONTRASENA

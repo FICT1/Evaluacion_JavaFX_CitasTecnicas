@@ -42,11 +42,11 @@ public class MainController {
         } else {
             lblEstadoConexion.setText("Sin conexión a la base de datos");
             indicadorConexion.getStyleClass().add("indicador-error");
-            Tooltip.install(pildoraConexion, new Tooltip("Verifique que PostgreSQL esté encendido y que las credenciales sean correctas."));
+            Tooltip.install(pildoraConexion, new Tooltip("Verifique que PostgreSQL esté encendido y que db.properties tenga las credenciales correctas."));
             AlertUtil.mostrarError("Sin conexión",
                     "No se pudo conectar con la base de datos gestion_citas.\n\n"
-                            + "Verifique que PostgreSQL esté encendido, que la base de datos exista y que las "
-                            + "credenciales sean correctas. Mientras tanto, las tablas aparecerán vacías.");
+                            + "Verifique que PostgreSQL esté encendido, que la base de datos exista y que el archivo "
+                            + "db.properties tenga las credenciales correctas. Mientras tanto, las tablas aparecerán vacías.");
         }
     }
 }
