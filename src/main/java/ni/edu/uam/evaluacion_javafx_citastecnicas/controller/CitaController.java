@@ -9,6 +9,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.CitaTecnica;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -58,6 +59,12 @@ public class CitaController {
         // Escucha la selección de la tabla para que funcione tanto con el ratón como con el teclado
         tblCitas.getSelectionModel().selectedItemProperty().addListener(
                 (observable, anterior, nueva) -> seleccionarCita(nueva));
+    }
+
+    /** Recarga clientes y citas desde la base de datos conservando los filtros activos. */
+    public void refrescar() {
+        cargarClientes();
+        cargarCitas();
     }
 
     private void configurarColumnas() {
@@ -117,9 +124,9 @@ public class CitaController {
             limpiar();
             cargarCitas();
         } catch (IllegalArgumentException e) {
-            AlertUtil.mostrarAdvertencia("Advertencia", e.getMessage());
+            AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de BD", "Error al guardar en la BD: " + e.getMessage());
+            mostrarErrorSQL("Error al guardar la cita", e);
         }
     }
 
@@ -139,7 +146,20 @@ public class CitaController {
         } catch (IllegalArgumentException e) {
             AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de BD", "Error al actualizar en la BD: " + e.getMessage());
+            mostrarErrorSQL("Error al actualizar la cita", e);
+        }
+    }
+
+    /**
+     * Muestra el error SQL con un mensaje comprensible. Si la clave foránea rechaza la operación
+     * es porque el cliente seleccionado fue eliminado mientras se llenaba el formulario.
+     */
+    private void mostrarErrorSQL(String accion, SQLException e) {
+        if (ValidacionUtil.SQLSTATE_CLAVE_FORANEA.equals(e.getSQLState())) {
+            AlertUtil.mostrarAdvertencia("Cliente inexistente", accion + ": el cliente seleccionado ya no existe en la base de datos.");
+            cargarClientes();
+        } else {
+            AlertUtil.mostrarError("Error de BD", accion + ": " + e.getMessage());
         }
     }
 
@@ -198,7 +218,8 @@ public class CitaController {
     }
 
     private CitaTecnica construirCitaDesdeFormulario() {
-        if (cmbCliente.getValue() == null) throw new IllegalArgumentException("Debe seleccionar un cliente.");
+        Cliente cliente = cmbCliente.getValue();
+        if (cliente == null || cliente.getId() <= 0) throw new IllegalArgumentException("Debe seleccionar un cliente registrado.");
         if (dpFecha.getValue() == null) throw new IllegalArgumentException("Debe seleccionar una fecha para la cita.");
 
         String horaTexto = txtHora.getText();
@@ -211,19 +232,20 @@ public class CitaController {
             throw new IllegalArgumentException("Formato de hora incorrecto. Use HH:mm (ej. 14:30).");
         }
 
-        String servicio = txtTipoServicio.getText();
-        if (servicio == null || servicio.trim().isEmpty()) throw new IllegalArgumentException("Debe ingresar el tipo de servicio.");
+        String servicio = ValidacionUtil.requerido(txtTipoServicio.getText(), "Tipo de servicio", 80);
+        String descripcion = ValidacionUtil.requerido(txtDescripcion.getText(), "Descripción", 255);
 
         String estado = cmbEstado.getValue();
         if (estado == null) throw new IllegalArgumentException("Debe seleccionar un estado para la cita.");
-
-        String descripcion = txtDescripcion.getText() != null ? txtDescripcion.getText().trim() : "";
+        if (!CitaTecnica.ESTADOS_PERMITIDOS.contains(estado)) {
+            throw new IllegalArgumentException("Estado no permitido. Opciones válidas: " + String.join(", ", CitaTecnica.ESTADOS_PERMITIDOS) + ".");
+        }
 
         CitaTecnica cita = new CitaTecnica();
-        cita.setCliente(cmbCliente.getValue());
+        cita.setCliente(cliente);
         cita.setFecha(dpFecha.getValue());
         cita.setHora(hora);
-        cita.setTipoServicio(servicio.trim());
+        cita.setTipoServicio(servicio);
         cita.setDescripcion(descripcion);
         cita.setEstado(estado);
 

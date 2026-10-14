@@ -1,7 +1,11 @@
 package ni.edu.uam.evaluacion_javafx_citastecnicas.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 public class CitaTecnica {
+    // Estados permitidos para una cita según el modelo de datos
+    public static final List<String> ESTADOS_PERMITIDOS = List.of("Pendiente", "En proceso", "Finalizada", "Cancelada");
+
     private Integer id;
     private Cliente cliente; // Relación foránea: se representa como una referencia al objeto en Java
     private LocalDate fecha;
