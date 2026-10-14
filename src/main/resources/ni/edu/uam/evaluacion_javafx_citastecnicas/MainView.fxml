@@ -20,9 +20,9 @@
                         <fx:include source="ClienteView.fxml" />
                     </content>
                 </Tab>
-                <Tab text="Gestión de Citas Técnicas">
+                <Tab fx:id="tabCitas" text="Gestión de Citas Técnicas">
                     <content>
-                        <fx:include source="CitaView.fxml" />
+                        <fx:include fx:id="citaView" source="CitaView.fxml" />
                     </content>
                 </Tab>
             </tabs>
