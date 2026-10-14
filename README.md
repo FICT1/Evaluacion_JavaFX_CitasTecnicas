@@ -14,7 +14,7 @@ Sistema de gestión de citas de atención técnica para **TecnoAsistencia Nicara
 | Franklin Isaac Callejas Treminio | [@FICT1](https://github.com/FICT1) | Creación del repositorio y estructura del proyecto, dependencia JDBC en `pom.xml`, conexión centralizada (`DatabaseConnection`), `AlertUtil`, ventana principal (`MainView` / `MainController`), script `gestion_citas.sql` y configuración de credenciales locales. |
 | Daris Dayana Mayorga Oyes | [@darismayorga](https://github.com/darismayorga) | Módulo de clientes: modelo `Cliente`, `ClienteDAO` (CRUD y búsqueda), `ClienteController` y `ClienteView.fxml`. |
 | Luis Xavier Aburto Mantilla | [@LXaburtoM](https://github.com/LXaburtoM) | Módulo de citas técnicas: modelo `CitaTecnica`, `CitaTecnicaDAO` (CRUD con JOIN), `CitaController` y `CitaView.fxml`, reestructuración de `AlertUtil`. |
-| Daniella Alexandra Rocha Palacios | [@vybdani](https://github.com/vybdani) | Validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, correcciones generales y README. |
+| Daniella Alexandra Rocha Palacios | [@vybdani](https://github.com/vybdani) | Diseño completo de la interfaz gráfica (vistas FXML y estilos), validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, correcciones generales y README. |
 
 ---
 
