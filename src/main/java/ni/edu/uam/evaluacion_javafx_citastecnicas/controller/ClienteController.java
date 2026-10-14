@@ -8,6 +8,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.CeldasUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
@@ -41,6 +42,7 @@ public class ClienteController {
         colTelefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
         colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
         colActivo.setCellValueFactory(new PropertyValueFactory<>("activo"));
+        colActivo.setCellFactory(CeldasUtil.activo());
 
         cargarClientes();
 
