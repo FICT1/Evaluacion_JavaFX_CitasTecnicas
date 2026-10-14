@@ -41,6 +41,21 @@ public class ClienteDAO {
         return clientes;
     }
 
+    public List<Cliente> listarActivos() throws SQLException {
+        List<Cliente> clientes = new ArrayList<>();
+        String sql = "SELECT id, nombres, apellidos, telefono, correo, activo FROM cliente " +
+                "WHERE activo = TRUE ORDER BY nombres ASC, apellidos ASC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                clientes.add(mapearCliente(rs));
+            }
+        }
+        return clientes;
+    }
+
     public List<Cliente> buscar(String filtro) throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT id, nombres, apellidos, telefono, correo, activo FROM cliente " +
