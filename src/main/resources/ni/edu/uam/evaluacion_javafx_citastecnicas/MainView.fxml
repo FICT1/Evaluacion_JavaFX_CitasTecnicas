@@ -13,7 +13,6 @@
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.MainController">
 
-    <!-- Franja superior navy: marca y estado de la conexión -->
     <top>
         <HBox alignment="CENTER_LEFT" styleClass="encabezado">
             <StackPane styleClass="logo">
@@ -31,7 +30,6 @@
         </HBox>
     </top>
 
-    <!-- Pestañas tipo carpeta sobre la franja navy; la activa se une con el contenido -->
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="pestanas">
             <Tab text="Clientes">

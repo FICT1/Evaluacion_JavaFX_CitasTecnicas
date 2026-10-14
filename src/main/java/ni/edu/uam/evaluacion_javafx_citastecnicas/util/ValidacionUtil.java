@@ -6,44 +6,27 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
-/**
- * Reglas de validación reutilizables. Cada método lanza IllegalArgumentException
- * con un mensaje comprensible para mostrarlo directamente al usuario.
- */
 public class ValidacionUtil {
 
-    // Formato básico: usuario@dominio.extension, sin espacios ni puntos seguidos o al inicio/final del usuario
     private static final Pattern PATRON_CORREO =
             Pattern.compile("^[\\w+-]+(\\.[\\w+-]+)*@[\\w-]+(\\.[\\w-]+)*\\.[A-Za-z]{2,}$");
 
-    // Solo dígitos, entre 8 y 20 (el campo del formulario ya impide escribir otros caracteres)
     private static final Pattern PATRON_TELEFONO =
             Pattern.compile("^[0-9]{8,20}$");
 
-    // Palabras de letras (con tildes y ñ) separadas por un espacio, apóstrofo o guion:
-    // "María José", "D'Angelo", "Pérez-Ruiz". Rechaza "---", "' '" o separadores seguidos.
     private static final Pattern PATRON_NOMBRE =
             Pattern.compile("^\\p{L}+([ '\\-]\\p{L}+)*$");
 
-    // Código de error de PostgreSQL para violación de restricción UNIQUE
     public static final String SQLSTATE_DUPLICADO = "23505";
-    // Código de error de PostgreSQL para violación de clave foránea
     public static final String SQLSTATE_CLAVE_FORANEA = "23503";
 
-    /**
-     * Indica si el error se debe a que no hay conexión con la base de datos (servidor apagado, base inexistente
-     * o credenciales incorrectas), y no a un problema de la consulta. SQLState 08xxx: conexión;
-     * 3D000: base de datos inexistente; 28xxx: autenticación.
-     */
+    // SQLState de PostgreSQL: 08xxx conexión, 3D000 base de datos inexistente, 28xxx autenticación
     public static boolean esErrorDeConexion(java.sql.SQLException e) {
         String estado = e.getSQLState();
         return estado != null && (estado.startsWith("08") || estado.equals("3D000") || estado.startsWith("28"));
     }
 
-    // ---- Reglas de agenda de citas ----
-    /** Las citas se pueden registrar desde 1 año atrás (historial) hasta 1 año adelante (agenda). */
     public static final int MESES_RANGO_CITAS = 12;
-    /** Horario de atención del servicio técnico. */
     public static final LocalTime HORA_APERTURA = LocalTime.of(7, 0);
     public static final LocalTime HORA_CIERRE = LocalTime.of(18, 0);
 
@@ -52,10 +35,6 @@ public class ValidacionUtil {
     private ValidacionUtil() {
     }
 
-    /**
-     * Verifica que el texto no esté vacío y no supere la longitud de la columna.
-     * Devuelve el texto sin espacios extremos y con los espacios repetidos reducidos a uno.
-     */
     public static String requerido(String valor, String campo, int longitudMaxima) {
         if (valor == null || valor.trim().isEmpty()) {
             throw new IllegalArgumentException("El campo " + campo + " es obligatorio.");
@@ -83,7 +62,6 @@ public class ValidacionUtil {
         return telefono;
     }
 
-    /** Campo obligatorio que solo admite palabras formadas por letras (nombres y apellidos). */
     public static String nombre(String valor, String campo, int longitudMaxima) {
         String nombre = requerido(valor, campo, longitudMaxima);
         if (nombre.length() < 2 || !PATRON_NOMBRE.matcher(nombre).matches()) {
@@ -93,26 +71,14 @@ public class ValidacionUtil {
         return nombre;
     }
 
-    /** Primer día que se puede elegir para una cita. */
     public static LocalDate fechaMinimaCita(LocalDate hoy) {
         return hoy.minusMonths(MESES_RANGO_CITAS);
     }
 
-    /** Último día que se puede elegir para una cita. */
     public static LocalDate fechaMaximaCita(LocalDate hoy) {
         return hoy.plusMonths(MESES_RANGO_CITAS);
     }
 
-    /**
-     * Valida que la fecha y la hora de una cita sean coherentes con el calendario y con su estado:
-     * <ul>
-     *     <li>la fecha debe estar dentro del rango permitido (1 año atrás / 1 año adelante);</li>
-     *     <li>la hora debe estar dentro del horario de atención;</li>
-     *     <li>una cita Pendiente no puede estar en el pasado;</li>
-     *     <li>una cita En proceso o Finalizada no puede tener una fecha futura (el mismo día sí se permite).</li>
-     * </ul>
-     * Recibe "ahora" como parámetro para que la regla sea comprobable con cualquier fecha.
-     */
     public static void fechaHoraCita(LocalDate fecha, LocalTime hora, String estado, LocalDateTime ahora) {
         LocalDate hoy = ahora.toLocalDate();
         LocalDate minima = fechaMinimaCita(hoy);
@@ -136,14 +102,14 @@ public class ValidacionUtil {
                 }
             }
             case "En proceso", "Finalizada" -> {
-                // Se compara solo la fecha: el mismo día el técnico puede atender antes de la hora agendada
+                // Solo la fecha: el mismo día se puede atender antes de la hora agendada
                 if (fecha.isAfter(hoy)) {
                     throw new IllegalArgumentException("Una cita " + estado + " no puede tener una fecha futura: "
                             + "todavía no ha ocurrido. Use el estado Pendiente para agendarla.");
                 }
             }
             default -> {
-                // Cancelada: cualquier fecha dentro del rango permitido
+                // Cancelada: sin restricción adicional
             }
         }
     }

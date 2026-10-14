@@ -19,7 +19,6 @@
 
     <HBox spacing="18" VBox.vgrow="ALWAYS">
 
-        <!-- Formulario: registrar o editar una cita -->
         <VBox styleClass="tarjeta" minWidth="300" prefWidth="320" maxWidth="340">
             <Label text="Datos de la cita" styleClass="titulo-seccion" />
             <Label text="Complete los campos y presione Guardar. Para modificar o eliminar, primero seleccione una cita en la tabla."
@@ -82,7 +81,6 @@
             </GridPane>
         </VBox>
 
-        <!-- Listado y filtros de citas -->
         <VBox styleClass="tarjeta" HBox.hgrow="ALWAYS">
             <VBox spacing="2">
                 <Label text="Citas registradas" styleClass="titulo-seccion" />

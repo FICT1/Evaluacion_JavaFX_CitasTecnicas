@@ -127,10 +127,8 @@ public class CitaTecnicaDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
-            pstmt.executeUpdate(); // Realiza eliminación física de la cita
+            pstmt.executeUpdate();
         }
     }
 }
-
-
 

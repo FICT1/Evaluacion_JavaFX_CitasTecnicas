@@ -10,11 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Fábricas de celdas para mostrar los datos de las tablas de forma legible:
- * fechas dd/MM/yyyy, horas HH:mm y etiquetas de color para estados.
- * Los colores de las etiquetas se definen en styles.css.
- */
 public class CeldasUtil {
 
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -43,7 +38,6 @@ public class CeldasUtil {
         };
     }
 
-    /** Muestra el campo booleano "activo" del cliente como etiqueta Activo / Inactivo. */
     public static <S> Callback<TableColumn<S, Boolean>, TableCell<S, Boolean>> activo() {
         return columna -> new TableCell<>() {
             @Override
@@ -60,7 +54,6 @@ public class CeldasUtil {
         };
     }
 
-    /** Muestra el estado de la cita como etiqueta de color (Pendiente, En proceso, Finalizada, Cancelada). */
     public static <S> Callback<TableColumn<S, String>, TableCell<S, String>> estadoCita() {
         return columna -> new TableCell<>() {
             @Override
@@ -82,7 +75,6 @@ public class CeldasUtil {
         return etiqueta;
     }
 
-    // "En proceso" -> "en-proceso"
     private static String aClaseCss(String texto) {
         String sinAcentos = Normalizer.normalize(texto, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
         return sinAcentos.trim().toLowerCase().replace(' ', '-');

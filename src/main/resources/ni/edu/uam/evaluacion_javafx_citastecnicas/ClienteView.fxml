@@ -18,7 +18,6 @@
 
     <HBox spacing="18" VBox.vgrow="ALWAYS">
 
-        <!-- Formulario: registrar o editar un cliente -->
         <VBox styleClass="tarjeta" minWidth="300" prefWidth="320" maxWidth="340">
             <Label text="Datos del cliente" styleClass="titulo-seccion" />
             <Label text="Complete los campos y presione Guardar. Para modificar o eliminar, primero seleccione un cliente en la tabla."
@@ -76,7 +75,6 @@
             </GridPane>
         </VBox>
 
-        <!-- Listado y búsqueda de clientes -->
         <VBox styleClass="tarjeta" HBox.hgrow="ALWAYS">
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <VBox spacing="2">

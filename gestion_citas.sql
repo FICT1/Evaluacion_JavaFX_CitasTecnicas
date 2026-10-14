@@ -1,4 +1,3 @@
--- Script de creación de la estructura para gestion_citas
 CREATE TABLE cliente (
     id SERIAL PRIMARY KEY,
     nombres VARCHAR(80) NOT NULL,
