@@ -9,4 +9,16 @@ public class CitaTecnica {
     private String tipoServicio;
     private String descripcion;
     private String estado;
+    public CitaTecnica() {
+    }
+
+    public CitaTecnica(Integer id, Cliente cliente, LocalDate fecha, LocalTime hora, String tipoServicio, String descripcion, String estado) {
+        this.id = id;
+        this.cliente = cliente;
+        this.fecha = fecha;
+        this.hora = hora;
+        this.tipoServicio = tipoServicio;
+        this.descripcion = descripcion;
+        this.estado = estado;
+    }
 }
