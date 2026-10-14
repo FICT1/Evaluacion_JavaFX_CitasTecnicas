@@ -64,8 +64,12 @@ public class CitaController {
     }
 
     private void cargarClientes() {
-        List<Cliente> clientes = clienteDAO.listar();
-        cmbCliente.setItems(FXCollections.observableArrayList(clientes));
+        try {
+            List<Cliente> clientes = clienteDAO.listar();
+            cmbCliente.setItems(FXCollections.observableArrayList(clientes));
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+        }
     }
 
     private void cargarCitas() {

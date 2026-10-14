@@ -9,6 +9,8 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
 
+import java.sql.SQLException;
+
 public class ClienteController {
 
     @FXML private TextField txtNombres;
@@ -52,15 +54,27 @@ public class ClienteController {
             if (newValue == null || newValue.trim().isEmpty()) {
                 cargarClientes();
             } else {
-                listaClientes.setAll(clienteDAO.buscar(newValue.trim()));
-                tblClientes.setItems(listaClientes);
+                buscarClientes(newValue.trim());
             }
         });
     }
 
     private void cargarClientes() {
-        listaClientes.setAll(clienteDAO.listar());
-        tblClientes.setItems(listaClientes);
+        try {
+            listaClientes.setAll(clienteDAO.listar());
+            tblClientes.setItems(listaClientes);
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+        }
+    }
+
+    private void buscarClientes(String filtro) {
+        try {
+            listaClientes.setAll(clienteDAO.buscar(filtro));
+            tblClientes.setItems(listaClientes);
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de Base de Datos", "Error al buscar clientes: " + e.getMessage());
+        }
     }
 
     private void mostrarClienteEnFormulario(Cliente c) {
@@ -83,12 +97,13 @@ public class ClienteController {
                 chkActivo.isSelected()
         );
 
-        if (clienteDAO.guardar(nuevo)) {
+        try {
+            clienteDAO.guardar(nuevo);
             AlertUtil.mostrarInfo("Éxito", "Cliente guardado correctamente.");
             limpiarFormulario();
             cargarClientes();
-        } else {
-            AlertUtil.mostrarError("Error", "No se pudo guardar el cliente.");
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de BD", "No se pudo guardar el cliente: " + e.getMessage());
         }
     }
 
@@ -101,18 +116,23 @@ public class ClienteController {
 
         if (!validarFormulario()) return;
 
-        clienteSeleccionado.setNombres(txtNombres.getText().trim());
-        clienteSeleccionado.setApellidos(txtApellidos.getText().trim());
-        clienteSeleccionado.setTelefono(txtTelefono.getText().trim());
-        clienteSeleccionado.setCorreo(txtCorreo.getText().trim());
-        clienteSeleccionado.setActivo(chkActivo.isSelected());
+        // Se trabaja sobre una copia para no alterar la fila de la tabla si la actualización falla
+        Cliente actualizado = new Cliente(
+                clienteSeleccionado.getId(),
+                txtNombres.getText().trim(),
+                txtApellidos.getText().trim(),
+                txtTelefono.getText().trim(),
+                txtCorreo.getText().trim(),
+                chkActivo.isSelected()
+        );
 
-        if (clienteDAO.actualizar(clienteSeleccionado)) {
+        try {
+            clienteDAO.actualizar(actualizado);
             AlertUtil.mostrarInfo("Éxito", "Cliente actualizado correctamente.");
             limpiarFormulario();
             cargarClientes();
-        } else {
-            AlertUtil.mostrarError("Error", "No se pudo actualizar el cliente.");
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de BD", "No se pudo actualizar el cliente: " + e.getMessage());
         }
     }
 
@@ -123,26 +143,27 @@ public class ClienteController {
             return;
         }
 
-        if (clienteDAO.tieneCitasAsociadas(clienteSeleccionado.getId())) {
-            AlertUtil.mostrarAdvertencia(
-                    "No se puede eliminar",
-                    "El cliente seleccionado tiene citas técnicas asociadas y no puede ser eliminado de la base de datos."
-            );
-            return;
-        }
+        try {
+            if (clienteDAO.tieneCitasAsociadas(clienteSeleccionado.getId())) {
+                AlertUtil.mostrarAdvertencia(
+                        "No se puede eliminar",
+                        "El cliente seleccionado tiene citas técnicas asociadas y no puede ser eliminado de la base de datos."
+                );
+                return;
+            }
 
-        boolean confirmar = AlertUtil.mostrarConfirmacion(
-                "Confirmar Eliminación",
-                "¿Está seguro de que desea eliminar al cliente '" + clienteSeleccionado.getNombreCompleto() + "'?"
-        );
-        if (confirmar) {
-            if (clienteDAO.eliminar(clienteSeleccionado.getId())) {
+            boolean confirmar = AlertUtil.mostrarConfirmacion(
+                    "Confirmar Eliminación",
+                    "¿Está seguro de que desea eliminar al cliente '" + clienteSeleccionado.getNombreCompleto() + "'?"
+            );
+            if (confirmar) {
+                clienteDAO.eliminar(clienteSeleccionado.getId());
                 AlertUtil.mostrarInfo("Éxito", "Cliente eliminado correctamente.");
                 limpiarFormulario();
                 cargarClientes();
-            } else {
-                AlertUtil.mostrarError("Error", "No se pudo eliminar el cliente.");
             }
+        } catch (SQLException e) {
+            AlertUtil.mostrarError("Error de BD", "No se pudo eliminar el cliente: " + e.getMessage());
         }
     }
 
