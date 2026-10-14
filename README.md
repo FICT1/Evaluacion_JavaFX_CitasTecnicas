@@ -11,12 +11,10 @@ Sistema de gestión de citas de atención técnica para **TecnoAsistencia Nicara
 
 | Integrante | Usuario GitHub | Responsabilidades |
 |---|---|---|
-| Franklin Callejas | [@FICT1](https://github.com/FICT1) | Creación del repositorio y estructura del proyecto, dependencia JDBC en `pom.xml`, conexión centralizada (`DatabaseConnection`), `AlertUtil`, ventana principal (`MainView` / `MainController`). |
-| Daris Mayorga | `@USUARIO_GITHUB` | Módulo de clientes: modelo `Cliente`, `ClienteDAO` (CRUD y búsqueda), `ClienteController` y `ClienteView.fxml`. |
-| Luis Aburto | `@USUARIO_GITHUB` | Módulo de citas técnicas: modelo `CitaTecnica`, `CitaTecnicaDAO` (CRUD con JOIN), `CitaController` y `CitaView.fxml`, reestructuración de `AlertUtil`. |
-| Daniella Alexandra Rocha Palacios | `@USUARIO_GITHUB` | Validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, correcciones generales y README. |
-
-> **Pendiente:** completar los usuarios de GitHub y, si corresponde, quién se encarga del script `gestion_citas.sql` y la configuración de credenciales.
+| Franklin Isaac Callejas Treminio | [@FICT1](https://github.com/FICT1) | Creación del repositorio y estructura del proyecto, dependencia JDBC en `pom.xml`, conexión centralizada (`DatabaseConnection`), `AlertUtil`, ventana principal (`MainView` / `MainController`), script `gestion_citas.sql` y configuración de credenciales locales. |
+| Daris Dayana Mayorga Oyes | [@darismayorga](https://github.com/darismayorga) | Módulo de clientes: modelo `Cliente`, `ClienteDAO` (CRUD y búsqueda), `ClienteController` y `ClienteView.fxml`. |
+| Luis Xavier Aburto Mantilla | [@LXaburtoM](https://github.com/LXaburtoM) | Módulo de citas técnicas: modelo `CitaTecnica`, `CitaTecnicaDAO` (CRUD con JOIN), `CitaController` y `CitaView.fxml`, reestructuración de `AlertUtil`. |
+| Daniella Alexandra Rocha Palacios | [@vybdani](https://github.com/vybdani) | Validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, correcciones generales y README. |
 
 ---
 
