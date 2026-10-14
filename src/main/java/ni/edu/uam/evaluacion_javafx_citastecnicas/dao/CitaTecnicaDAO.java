@@ -5,6 +5,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.util.DatabaseConnection;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 public class CitaTecnicaDAO {
@@ -88,6 +89,28 @@ public class CitaTecnicaDAO {
                 rs.getString("descripcion"),
                 rs.getString("estado")
         );
+    }
+
+    /**
+     * Indica si el cliente ya tiene otra cita activa (no cancelada) en la misma fecha y hora.
+     * Al actualizar se envía el id de la cita editada para excluirla; al registrar una nueva se envía 0.
+     */
+    public boolean existeCitaEnHorario(int clienteId, LocalDate fecha, LocalTime hora, int idExcluido) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ? AND fecha = ? AND hora = ? " +
+                "AND estado <> 'Cancelada' AND id <> ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, clienteId);
+            pstmt.setDate(2, Date.valueOf(fecha));
+            pstmt.setTime(3, Time.valueOf(hora));
+            pstmt.setInt(4, idExcluido);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
     }
 
     public void actualizar(CitaTecnica cita) throws SQLException {
