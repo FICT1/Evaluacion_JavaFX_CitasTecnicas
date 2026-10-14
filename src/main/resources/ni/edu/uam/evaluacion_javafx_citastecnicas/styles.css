@@ -1,8 +1,3 @@
-/*
- * Hoja de estilos de la aplicación: azul navy sobre fondo beige, con resaltados en azul suave.
- * Los colores se definen una sola vez en .root; para cambiar el tema basta con editar esos valores.
- */
-
 .root {
     -navy: #0B1F3A;
     -navy-medio: #142C52;
@@ -27,9 +22,6 @@
     -fx-background-color: -fondo;
 }
 
-/* ================= Encabezado y pestañas ================= */
-
-/* Franja superior navy; las pestañas continúan sobre el mismo color */
 .encabezado {
     -fx-background-color: -navy;
     -fx-padding: 18 28 14 28;
@@ -62,7 +54,6 @@
     -fx-font-size: 12px;
 }
 
-/* Estado de la conexión como píldora en la esquina superior derecha */
 .pildora-conexion {
     -fx-background-color: -navy-medio;
     -fx-background-radius: 20;
@@ -92,7 +83,6 @@
     -fx-font-size: 12px;
 }
 
-/* Pestañas tipo carpeta: la activa toma el color del contenido y se une con él */
 .pestanas:top > .tab-header-area {
     -fx-padding: 0 0 0 22;
 }
@@ -148,7 +138,6 @@
     -fx-background-color: -fondo;
 }
 
-/* Íconos dibujados con SVG para no depender de imágenes */
 .icono {
     -fx-min-width: 16;
     -fx-min-height: 16;
@@ -168,8 +157,6 @@
 .icono-citas {
     -fx-shape: "M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z";
 }
-
-/* ================= Contenido ================= */
 
 .vista {
     -fx-padding: 26 28 24 28;
@@ -214,8 +201,6 @@
     -fx-min-height: 1;
     -fx-max-height: 1;
 }
-
-/* ================= Campos ================= */
 
 .text-field,
 .combo-box,
@@ -306,8 +291,6 @@
     -fx-background-color: white;
 }
 
-/* ================= Botones ================= */
-
 .button {
     -fx-background-radius: 10;
     -fx-border-radius: 10;
@@ -354,8 +337,6 @@
     -fx-background-color: -peligro;
     -fx-text-fill: white;
 }
-
-/* ================= Tablas ================= */
 
 .table-view {
     -fx-background-color: -tarjeta;
@@ -427,7 +408,6 @@
     -fx-font-size: 13px;
 }
 
-/* Etiquetas de color para el estado del cliente y de las citas */
 .etiqueta-estado {
     -fx-background-radius: 10;
     -fx-padding: 3 10 3 10;
@@ -460,8 +440,6 @@
     -fx-text-fill: -peligro;
 }
 
-/* ================= Desplazamiento ================= */
-
 .scroll-pane {
     -fx-background-color: transparent;
     -fx-padding: 0;
@@ -471,7 +449,6 @@
     -fx-background-color: transparent;
 }
 
-/* Área desplazable de los campos del formulario (los botones quedan fijos debajo) */
 .scroll-formulario {
     -fx-background-insets: 0;
     -fx-border-width: 0;
@@ -501,8 +478,6 @@
     -fx-padding: 0;
 }
 
-/* ================= Alertas ================= */
-
 .dialog-pane {
     -fx-background-color: -tarjeta;
     -fx-padding: 6;
@@ -510,11 +485,15 @@
     -fx-border-width: 0 0 0 5;
 }
 
-.dialog-pane > .content.label {
+.dialog-pane > .mensaje-alerta {
+    -fx-padding: 18 20 12 20;
+    -fx-line-spacing: 2;
+}
+
+.mensaje-alerta > .texto-alerta {
+    -fx-font-family: "Segoe UI", "Roboto", "Helvetica", sans-serif;
     -fx-font-size: 13.5px;
-    -fx-text-fill: -texto;
-    -fx-padding: 18 20 10 20;
-    -fx-wrap-text: true;
+    -fx-fill: -texto;
 }
 
 .dialog-pane > .button-bar > .container {
@@ -537,7 +516,7 @@
     -fx-text-fill: -texto;
 }
 
-/* Fondo de la ventana en navy: así no queda ninguna línea clara entre la franja superior y las pestañas */
+/* Fondo navy: evita una línea clara entre la franja superior y las pestañas */
 .root.ventana {
     -fx-background-color: -navy;
 }
