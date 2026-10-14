@@ -6,6 +6,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.DatabaseConnection;
 
 public class MainController {
@@ -45,6 +46,11 @@ public class MainController {
             lblEstadoConexion.setText("Sin conexión a la base de datos");
             indicadorConexion.getStyleClass().add("indicador-error");
             Tooltip.install(pildoraConexion, new Tooltip("Verifique que PostgreSQL esté encendido y que las credenciales sean correctas."));
+            // Un único aviso al abrir; las recargas automáticas de las tablas no lo repiten
+            AlertUtil.mostrarError("Sin conexión",
+                    "No se pudo conectar con la base de datos gestion_citas.\n\n"
+                            + "Verifique que PostgreSQL esté encendido, que la base de datos exista y que las "
+                            + "credenciales sean correctas. Mientras tanto, las tablas aparecerán vacías.");
         }
     }
 }
