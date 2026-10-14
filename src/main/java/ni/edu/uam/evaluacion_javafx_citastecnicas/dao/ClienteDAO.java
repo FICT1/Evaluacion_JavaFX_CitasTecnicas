@@ -99,11 +99,7 @@ public class ClienteDAO {
         }
     }
 
-    /**
-     * Indica si el correo ya está registrado por otro cliente (sin distinguir mayúsculas).
-     * Al actualizar se envía el id del cliente editado para excluirlo de la comparación;
-     * al registrar uno nuevo se envía 0.
-     */
+
     public boolean existeCorreo(String correo, int idExcluido) throws SQLException {
         String sql = "SELECT COUNT(*) FROM cliente WHERE LOWER(correo) = LOWER(?) AND id <> ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -117,7 +113,6 @@ public class ClienteDAO {
         }
     }
 
-    /** Cuenta las citas del cliente que todavía no terminan: Pendiente o En proceso. */
     public int contarCitasSinTerminar(int clienteId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ? AND estado IN ('Pendiente', 'En proceso')";
         try (Connection conn = DatabaseConnection.getConnection();

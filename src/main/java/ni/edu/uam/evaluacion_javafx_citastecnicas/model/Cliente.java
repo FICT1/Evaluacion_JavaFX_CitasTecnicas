@@ -85,8 +85,7 @@ public class Cliente {
         return getNombreCompleto();
     }
 
-    // Dos clientes son el mismo si tienen el mismo id. Permite que el ComboBox de citas
-    // conserve el cliente seleccionado cuando la lista se recarga desde la base de datos.
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
