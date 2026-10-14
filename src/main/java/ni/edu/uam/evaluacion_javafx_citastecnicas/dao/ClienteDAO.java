@@ -59,11 +59,17 @@ public class ClienteDAO {
     public List<Cliente> buscar(String filtro) throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT id, nombres, apellidos, telefono, correo, activo FROM cliente " +
-                "WHERE LOWER(nombres) LIKE ? OR LOWER(apellidos) LIKE ? OR LOWER(correo) LIKE ? ORDER BY id ASC";
+                "WHERE LOWER(nombres) LIKE ? ESCAPE '\\' OR LOWER(apellidos) LIKE ? ESCAPE '\\' " +
+                "OR LOWER(correo) LIKE ? ESCAPE '\\' ORDER BY id ASC";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            String valorFiltro = "%" + filtro.toLowerCase() + "%";
+            // Se escapan % y _ para que se busquen como texto y no funcionen como comodines de LIKE
+            String textoEscapado = filtro.toLowerCase()
+                    .replace("\\", "\\\\")
+                    .replace("%", "\\%")
+                    .replace("_", "\\_");
+            String valorFiltro = "%" + textoEscapado + "%";
             pstmt.setString(1, valorFiltro);
             pstmt.setString(2, valorFiltro);
             pstmt.setString(3, valorFiltro);
