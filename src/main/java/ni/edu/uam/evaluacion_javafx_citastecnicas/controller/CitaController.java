@@ -9,6 +9,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.CitaTecnica;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.CeldasUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
@@ -48,6 +49,7 @@ public class CitaController {
         clienteDAO = new ClienteDAO();
 
         configurarColumnas();
+        cargarEstados();
         cargarClientes();
         cargarCitas();
         configurarFiltros();
@@ -74,6 +76,20 @@ public class CitaController {
         colHora.setCellValueFactory(new PropertyValueFactory<>("hora"));
         colServicio.setCellValueFactory(new PropertyValueFactory<>("tipoServicio"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+
+        // Formato legible: fecha dd/MM/yyyy, hora HH:mm y estado como etiqueta de color
+        colFecha.setCellFactory(CeldasUtil.fecha());
+        colHora.setCellFactory(CeldasUtil.hora());
+        colEstado.setCellFactory(CeldasUtil.estadoCita());
+    }
+
+    // Las opciones de estado salen de una sola fuente: CitaTecnica.ESTADOS_PERMITIDOS
+    private void cargarEstados() {
+        cmbEstado.setItems(FXCollections.observableArrayList(CitaTecnica.ESTADOS_PERMITIDOS));
+
+        ObservableList<String> opcionesFiltro = FXCollections.observableArrayList("Todos");
+        opcionesFiltro.addAll(CitaTecnica.ESTADOS_PERMITIDOS);
+        cmbFiltroEstado.setItems(opcionesFiltro);
     }
 
     private void cargarClientes() {
