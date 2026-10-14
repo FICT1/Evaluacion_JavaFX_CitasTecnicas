@@ -196,11 +196,26 @@ src/main/resources/ni/edu/uam/evaluacion_javafx_citastecnicas/
 
 ## Capturas de funcionamiento
 
-> **Pendiente:** agregar las capturas en la carpeta `docs/capturas/` y enlazarlas aquí.
+### Gestión de clientes
 
-| Pantalla | Captura |
-|---|---|
-| Gestión de clientes | `docs/capturas/clientes.png` |
-| Gestión de citas técnicas | `docs/capturas/citas.png` |
-| Validación de correo duplicado | `docs/capturas/correo_duplicado.png` |
-| Eliminación restringida | `docs/capturas/eliminacion_restringida.png` |
+Listado de clientes con su estado (activo / inactivo).
+
+![Gestión de clientes](docs/capturas/clientes.png)
+
+### Gestión de citas técnicas
+
+Listado de citas con el nombre del cliente, filtros por fecha y estado, y los cuatro estados permitidos.
+
+![Gestión de citas técnicas](docs/capturas/citas.png)
+
+### Validación de correo duplicado
+
+Al registrar un cliente con un correo que ya existe, la aplicación rechaza la operación y explica el motivo.
+
+![Validación de correo duplicado](docs/capturas/correo_duplicado.png)
+
+### Eliminación restringida
+
+No se permite eliminar un cliente que tiene citas asociadas; la aplicación explica el motivo.
+
+![Eliminación restringida](docs/capturas/eliminacion_restringida.png)
