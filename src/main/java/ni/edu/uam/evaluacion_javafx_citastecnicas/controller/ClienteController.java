@@ -9,6 +9,7 @@ import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.CeldasUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.EntradaUtil;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
@@ -44,6 +45,13 @@ public class ClienteController {
         colActivo.setCellValueFactory(new PropertyValueFactory<>("activo"));
         colActivo.setCellFactory(CeldasUtil.activo());
 
+        // Restricciones de teclado según el tipo de dato y la longitud de cada columna
+        EntradaUtil.soloLetras(txtNombres, 80);
+        EntradaUtil.soloLetras(txtApellidos, 80);
+        EntradaUtil.soloNumeros(txtTelefono, 20);
+        EntradaUtil.sinEspacios(txtCorreo, 120);
+        EntradaUtil.longitudMaxima(txtBuscar, 120);
+
         cargarClientes();
 
         tblClientes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -75,9 +83,16 @@ public class ClienteController {
     }
 
     private void mostrarClienteEnFormulario(Cliente c) {
+        // Se vacía cada campo antes de escribir para que, si un dato guardado no cumple las
+        // restricciones de entrada, no quede visible el valor del cliente seleccionado antes
+        txtNombres.clear();
+        txtApellidos.clear();
+        txtTelefono.clear();
+        txtCorreo.clear();
         txtNombres.setText(c.getNombres());
         txtApellidos.setText(c.getApellidos());
-        txtTelefono.setText(c.getTelefono());
+        // El campo de teléfono solo acepta dígitos; se descartan separadores de registros antiguos
+        txtTelefono.setText(c.getTelefono() == null ? "" : c.getTelefono().replaceAll("[^0-9]", ""));
         txtCorreo.setText(c.getCorreo());
         chkActivo.setSelected(c.isActivo());
     }
@@ -190,8 +205,8 @@ public class ClienteController {
      * y construye el objeto. Lanza IllegalArgumentException si algún dato es inválido.
      */
     private Cliente construirClienteDesdeFormulario() {
-        String nombres = ValidacionUtil.requerido(txtNombres.getText(), "Nombres", 80);
-        String apellidos = ValidacionUtil.requerido(txtApellidos.getText(), "Apellidos", 80);
+        String nombres = ValidacionUtil.nombre(txtNombres.getText(), "Nombres", 80);
+        String apellidos = ValidacionUtil.nombre(txtApellidos.getText(), "Apellidos", 80);
         String telefono = ValidacionUtil.telefono(txtTelefono.getText(), 20);
         String correo = ValidacionUtil.correo(txtCorreo.getText(), 120);
 

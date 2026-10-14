@@ -12,9 +12,13 @@ public class ValidacionUtil {
     private static final Pattern PATRON_CORREO =
             Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)*\\.[A-Za-z]{2,}$");
 
-    // Dígitos con separadores opcionales (espacio, guion) y prefijo + opcional
+    // Solo dígitos, entre 8 y 20 (el campo del formulario ya impide escribir otros caracteres)
     private static final Pattern PATRON_TELEFONO =
-            Pattern.compile("^\\+?[0-9][0-9 -]{6,18}[0-9]$");
+            Pattern.compile("^[0-9]{8,20}$");
+
+    // Letras (incluye tildes y ñ), espacios, apóstrofo y guion
+    private static final Pattern PATRON_NOMBRE =
+            Pattern.compile("^[\\p{L} '\\-]+$");
 
     // Código de error de PostgreSQL para violación de restricción UNIQUE
     public static final String SQLSTATE_DUPLICADO = "23505";
@@ -47,8 +51,17 @@ public class ValidacionUtil {
     public static String telefono(String valor, int longitudMaxima) {
         String telefono = requerido(valor, "Teléfono", longitudMaxima);
         if (!PATRON_TELEFONO.matcher(telefono).matches()) {
-            throw new IllegalArgumentException("El teléfono solo puede contener dígitos, espacios, guiones y un + inicial (mínimo 8 caracteres).");
+            throw new IllegalArgumentException("El teléfono solo puede contener números y debe tener al menos 8 dígitos.");
         }
         return telefono;
+    }
+
+    /** Campo obligatorio que solo admite letras, espacios, apóstrofo y guion (nombres y apellidos). */
+    public static String nombre(String valor, String campo, int longitudMaxima) {
+        String nombre = requerido(valor, campo, longitudMaxima);
+        if (!PATRON_NOMBRE.matcher(nombre).matches()) {
+            throw new IllegalArgumentException("El campo " + campo + " solo puede contener letras.");
+        }
+        return nombre;
     }
 }

@@ -39,8 +39,8 @@
 
                     <VBox spacing="5">
                         <Label text="Teléfono *" styleClass="etiqueta" />
-                        <TextField fx:id="txtTelefono" promptText="Ej. 8888-7777" />
-                        <Label text="Mínimo 8 dígitos. Puede usar espacios, guiones y +505." styleClass="ayuda" wrapText="true" minHeight="-Infinity" />
+                        <TextField fx:id="txtTelefono" promptText="Ej. 88887777" />
+                        <Label text="Solo números, mínimo 8 dígitos." styleClass="ayuda" wrapText="true" minHeight="-Infinity" />
                     </VBox>
 
                     <VBox spacing="5">
