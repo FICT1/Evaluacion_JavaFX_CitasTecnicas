@@ -86,7 +86,7 @@
     </HBox>
 
     <!-- Tabla de Visualización de Citas -->
-    <TableView fx:id="tblCitas" onMouseClicked="#seleccionarFila" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colId" prefWidth="40" text="ID" />
             <TableColumn fx:id="colCliente" prefWidth="180" text="Cliente" />

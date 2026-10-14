@@ -54,6 +54,10 @@ public class CitaController {
         // Recarga los clientes cada vez que se despliega el ComboBox para incluir
         // los registrados o modificados en la pestaña de clientes sin reiniciar la aplicación
         cmbCliente.setOnShowing(event -> cargarClientes());
+
+        // Escucha la selección de la tabla para que funcione tanto con el ratón como con el teclado
+        tblCitas.getSelectionModel().selectedItemProperty().addListener(
+                (observable, anterior, nueva) -> seleccionarCita(nueva));
     }
 
     private void configurarColumnas() {
@@ -172,9 +176,8 @@ public class CitaController {
         tblCitas.getSelectionModel().clearSelection();
     }
 
-    @FXML
-    private void seleccionarFila() {
-        citaSeleccionada = tblCitas.getSelectionModel().getSelectedItem();
+    private void seleccionarCita(CitaTecnica cita) {
+        citaSeleccionada = cita;
         if (citaSeleccionada != null) {
             // Si el cliente de la cita no está en la lista (por ejemplo, está inactivo)
             // se muestra igualmente para no reasignar la cita a otro cliente por error
