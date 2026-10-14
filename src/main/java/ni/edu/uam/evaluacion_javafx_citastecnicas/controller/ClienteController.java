@@ -8,6 +8,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.ValidacionUtil;
 
 import java.sql.SQLException;
 
@@ -87,21 +88,14 @@ public class ClienteController {
 
     @FXML
     private void handleGuardar() {
-        if (!validarFormulario()) return;
-
-        Cliente nuevo = new Cliente(
-                txtNombres.getText().trim(),
-                txtApellidos.getText().trim(),
-                txtTelefono.getText().trim(),
-                txtCorreo.getText().trim(),
-                chkActivo.isSelected()
-        );
-
         try {
+            Cliente nuevo = construirClienteDesdeFormulario();
             clienteDAO.guardar(nuevo);
             AlertUtil.mostrarInfo("Éxito", "Cliente guardado correctamente.");
             limpiarFormulario();
             cargarClientes();
+        } catch (IllegalArgumentException e) {
+            AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
             AlertUtil.mostrarError("Error de BD", "No se pudo guardar el cliente: " + e.getMessage());
         }
@@ -114,23 +108,16 @@ public class ClienteController {
             return;
         }
 
-        if (!validarFormulario()) return;
-
-        // Se trabaja sobre una copia para no alterar la fila de la tabla si la actualización falla
-        Cliente actualizado = new Cliente(
-                clienteSeleccionado.getId(),
-                txtNombres.getText().trim(),
-                txtApellidos.getText().trim(),
-                txtTelefono.getText().trim(),
-                txtCorreo.getText().trim(),
-                chkActivo.isSelected()
-        );
-
         try {
+            // Se trabaja sobre una copia para no alterar la fila de la tabla si la actualización falla
+            Cliente actualizado = construirClienteDesdeFormulario();
+            actualizado.setId(clienteSeleccionado.getId());
             clienteDAO.actualizar(actualizado);
             AlertUtil.mostrarInfo("Éxito", "Cliente actualizado correctamente.");
             limpiarFormulario();
             cargarClientes();
+        } catch (IllegalArgumentException e) {
+            AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
             AlertUtil.mostrarError("Error de BD", "No se pudo actualizar el cliente: " + e.getMessage());
         }
@@ -182,11 +169,16 @@ public class ClienteController {
         clienteSeleccionado = null;
     }
 
-    private boolean validarFormulario() {
-        if (txtNombres.getText().trim().isEmpty() || txtApellidos.getText().trim().isEmpty()) {
-            AlertUtil.mostrarAdvertencia("Campos requeridos", "Los campos Nombres y Apellidos no pueden estar vacíos.");
-            return false;
-        }
-        return true;
+    /**
+     * Valida los campos del formulario según las reglas de la tabla cliente
+     * y construye el objeto. Lanza IllegalArgumentException si algún dato es inválido.
+     */
+    private Cliente construirClienteDesdeFormulario() {
+        String nombres = ValidacionUtil.requerido(txtNombres.getText(), "Nombres", 80);
+        String apellidos = ValidacionUtil.requerido(txtApellidos.getText(), "Apellidos", 80);
+        String telefono = ValidacionUtil.telefono(txtTelefono.getText(), 20);
+        String correo = ValidacionUtil.correo(txtCorreo.getText(), 120);
+
+        return new Cliente(nombres, apellidos, telefono, correo, chkActivo.isSelected());
     }
 }
