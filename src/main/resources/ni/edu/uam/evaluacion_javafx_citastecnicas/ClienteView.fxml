@@ -1,14 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.ClienteController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ni.edu.uam.evaluacion_javafx_citastecnicas.controller.ClienteController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
 
-</AnchorPane>
+    <Label text="Gestión de Clientes">
+        <font>
+            <Font name="System Bold" size="20.0" />
+        </font>
+    </Label>
+
+    <!-- Formulario de Entrada de Datos -->
+    <GridPane hgap="10.0" vgap="10.0">
+        <Label text="Nombres:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="txtNombres" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <Label text="Apellidos:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+        <TextField fx:id="txtApellidos" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+        <Label text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="txtTelefono" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Correo:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+        <TextField fx:id="txtCorreo" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+        <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <CheckBox fx:id="chkActivo" text="Activo" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    </GridPane>
+
+    <!-- Botones de Acción -->
+    <HBox spacing="10.0">
+        <Button fx:id="btnGuardar" onAction="#handleGuardar" text="Guardar" />
+        <Button fx:id="btnActualizar" onAction="#handleActualizar" text="Actualizar" />
+        <Button fx:id="btnLimpiar" onAction="#handleLimpiar" text="Limpiar" />
+        <Button fx:id="btnEliminar" onAction="#handleEliminar" text="Eliminar" style="-fx-base: #ff4d4d;" />
+    </HBox>
+
+    <!-- Búsqueda -->
+    <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <Label text="Buscar cliente:" />
+        <TextField fx:id="txtBuscar" promptText="Nombres, apellidos o correo..." HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- Tabla de Clientes -->
+    <TableView fx:id="tblClientes" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50.0" />
+            <TableColumn fx:id="colNombres" text="Nombres" prefWidth="150.0" />
+            <TableColumn fx:id="colApellidos" text="Apellidos" prefWidth="150.0" />
+            <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="100.0" />
+            <TableColumn fx:id="colCorreo" text="Correo" prefWidth="180.0" />
+            <TableColumn fx:id="colActivo" text="Activo" prefWidth="70.0" />
+        </columns>
+    </TableView>
+</VBox>
