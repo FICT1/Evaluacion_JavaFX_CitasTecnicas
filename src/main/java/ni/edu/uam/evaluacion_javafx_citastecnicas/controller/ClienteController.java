@@ -70,6 +70,8 @@ public class ClienteController {
      */
     private void cargarClientes() {
         String filtro = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim();
+        // Al recargar la tabla se pierde la selección; se recuerda para restaurarla
+        Cliente anterior = clienteSeleccionado;
         try {
             if (filtro.isEmpty()) {
                 listaClientes.setAll(clienteDAO.listar());
@@ -77,8 +79,21 @@ public class ClienteController {
                 listaClientes.setAll(clienteDAO.buscar(filtro));
             }
             tblClientes.setItems(listaClientes);
+            if (anterior != null) {
+                // Si el cliente sigue visible se vuelve a seleccionar con sus datos actualizados; si no (por ejemplo,
+                // la búsqueda lo oculta) se limpia el formulario para no editar o eliminar a alguien que ya no se ve
+                int indice = listaClientes.indexOf(anterior);
+                if (indice >= 0) {
+                    tblClientes.getSelectionModel().select(indice);
+                } else {
+                    limpiarFormulario();
+                }
+            }
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+            // Sin conexión no se repite el aviso en cada recarga: la barra superior ya lo indica
+            if (!ValidacionUtil.esErrorDeConexion(e)) {
+                AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+            }
         }
     }
 
@@ -99,6 +114,13 @@ public class ClienteController {
 
     @FXML
     private void handleGuardar() {
+        // Guardar registra un cliente NUEVO; con un cliente seleccionado se intentaría duplicarlo
+        if (clienteSeleccionado != null) {
+            AlertUtil.mostrarAdvertencia("Cliente seleccionado",
+                    "Está viendo un cliente existente. Para guardar sus cambios use Actualizar; "
+                            + "para registrar un cliente nuevo presione primero Limpiar.");
+            return;
+        }
         try {
             Cliente nuevo = construirClienteDesdeFormulario();
             validarCorreoUnico(nuevo.getCorreo(), 0);

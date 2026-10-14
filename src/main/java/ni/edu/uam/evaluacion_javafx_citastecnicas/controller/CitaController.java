@@ -124,7 +124,10 @@ public class CitaController {
             List<Cliente> clientes = clienteDAO.listarActivos();
             cmbCliente.setItems(FXCollections.observableArrayList(clientes));
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+            // Sin conexión no se repite el aviso en cada recarga: la barra superior ya lo indica
+            if (!ValidacionUtil.esErrorDeConexion(e)) {
+                AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
+            }
         }
     }
 
@@ -139,11 +142,24 @@ public class CitaController {
             estadoFiltro = null;
         }
 
+        // Al recargar la tabla se pierde la selección; se recuerda para restaurarla
+        Integer idSeleccionado = citaSeleccionada != null ? citaSeleccionada.getId() : null;
         try {
             listaCitas.setAll(citaDAO.filtrar(fechaFiltro, estadoFiltro));
             tblCitas.setItems(listaCitas);
+            if (idSeleccionado != null) {
+                // Si la cita sigue visible se vuelve a seleccionar con sus datos actualizados; si no (por ejemplo,
+                // la oculta un filtro) se limpia el formulario para no dejar datos que se puedan guardar duplicados
+                listaCitas.stream()
+                        .filter(c -> idSeleccionado.equals(c.getId()))
+                        .findFirst()
+                        .ifPresentOrElse(c -> tblCitas.getSelectionModel().select(c), this::limpiar);
+            }
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar las citas: " + e.getMessage());
+            // Sin conexión no se repite el aviso en cada recarga: la barra superior ya lo indica
+            if (!ValidacionUtil.esErrorDeConexion(e)) {
+                AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar las citas: " + e.getMessage());
+            }
         }
     }
 
@@ -160,6 +176,13 @@ public class CitaController {
 
     @FXML
     private void guardar() {
+        // Guardar registra una cita NUEVA; con una cita seleccionada se duplicaría
+        if (citaSeleccionada != null) {
+            AlertUtil.mostrarAdvertencia("Cita seleccionada",
+                    "Está viendo una cita existente. Para guardar sus cambios use Actualizar; "
+                            + "para registrar una cita nueva presione primero Limpiar.");
+            return;
+        }
         try {
             CitaTecnica nuevaCita = construirCitaDesdeFormulario();
             // Solo se agendan citas nuevas para clientes activos (el formulario puede traer
