@@ -90,6 +90,7 @@ public class ClienteController {
     private void handleGuardar() {
         try {
             Cliente nuevo = construirClienteDesdeFormulario();
+            validarCorreoUnico(nuevo.getCorreo(), 0);
             clienteDAO.guardar(nuevo);
             AlertUtil.mostrarInfo("Éxito", "Cliente guardado correctamente.");
             limpiarFormulario();
@@ -97,7 +98,7 @@ public class ClienteController {
         } catch (IllegalArgumentException e) {
             AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de BD", "No se pudo guardar el cliente: " + e.getMessage());
+            mostrarErrorSQL("No se pudo guardar el cliente", e);
         }
     }
 
@@ -112,6 +113,7 @@ public class ClienteController {
             // Se trabaja sobre una copia para no alterar la fila de la tabla si la actualización falla
             Cliente actualizado = construirClienteDesdeFormulario();
             actualizado.setId(clienteSeleccionado.getId());
+            validarCorreoUnico(actualizado.getCorreo(), actualizado.getId());
             clienteDAO.actualizar(actualizado);
             AlertUtil.mostrarInfo("Éxito", "Cliente actualizado correctamente.");
             limpiarFormulario();
@@ -119,7 +121,25 @@ public class ClienteController {
         } catch (IllegalArgumentException e) {
             AlertUtil.mostrarAdvertencia("Validación", e.getMessage());
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de BD", "No se pudo actualizar el cliente: " + e.getMessage());
+            mostrarErrorSQL("No se pudo actualizar el cliente", e);
+        }
+    }
+
+    private void validarCorreoUnico(String correo, int idExcluido) throws SQLException {
+        if (clienteDAO.existeCorreo(correo, idExcluido)) {
+            throw new IllegalArgumentException("El correo '" + correo + "' ya está registrado por otro cliente.");
+        }
+    }
+
+    /**
+     * Muestra el error SQL con un mensaje comprensible. Si la restricción UNIQUE del correo
+     * lo rechaza (por ejemplo, otro usuario lo registró al mismo tiempo) se explica el motivo.
+     */
+    private void mostrarErrorSQL(String accion, SQLException e) {
+        if (ValidacionUtil.SQLSTATE_DUPLICADO.equals(e.getSQLState())) {
+            AlertUtil.mostrarAdvertencia("Correo duplicado", accion + ": el correo ya está registrado por otro cliente.");
+        } else {
+            AlertUtil.mostrarError("Error de BD", accion + ": " + e.getMessage());
         }
     }
 

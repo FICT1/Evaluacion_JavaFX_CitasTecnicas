@@ -93,6 +93,24 @@ public class ClienteDAO {
         }
     }
 
+    /**
+     * Indica si el correo ya está registrado por otro cliente (sin distinguir mayúsculas).
+     * Al actualizar se envía el id del cliente editado para excluirlo de la comparación;
+     * al registrar uno nuevo se envía 0.
+     */
+    public boolean existeCorreo(String correo, int idExcluido) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM cliente WHERE LOWER(correo) = LOWER(?) AND id <> ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, correo);
+            pstmt.setInt(2, idExcluido);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
     public boolean tieneCitasAsociadas(int clienteId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
