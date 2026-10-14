@@ -51,30 +51,24 @@ public class ClienteController {
             }
         });
 
-        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.trim().isEmpty()) {
-                cargarClientes();
-            } else {
-                buscarClientes(newValue.trim());
-            }
-        });
+        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> cargarClientes());
     }
 
+    /**
+     * Recarga la tabla desde la base de datos respetando el texto de búsqueda,
+     * de modo que la búsqueda se conserva tras guardar, actualizar o eliminar.
+     */
     private void cargarClientes() {
+        String filtro = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim();
         try {
-            listaClientes.setAll(clienteDAO.listar());
+            if (filtro.isEmpty()) {
+                listaClientes.setAll(clienteDAO.listar());
+            } else {
+                listaClientes.setAll(clienteDAO.buscar(filtro));
+            }
             tblClientes.setItems(listaClientes);
         } catch (SQLException e) {
             AlertUtil.mostrarError("Error de Base de Datos", "Error al cargar los clientes: " + e.getMessage());
-        }
-    }
-
-    private void buscarClientes(String filtro) {
-        try {
-            listaClientes.setAll(clienteDAO.buscar(filtro));
-            tblClientes.setItems(listaClientes);
-        } catch (SQLException e) {
-            AlertUtil.mostrarError("Error de Base de Datos", "Error al buscar clientes: " + e.getMessage());
         }
     }
 
