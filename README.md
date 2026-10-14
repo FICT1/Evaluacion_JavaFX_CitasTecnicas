@@ -11,10 +11,10 @@ Sistema de gestión de citas de atención técnica para **TecnoAsistencia Nicara
 
 | Integrante | Usuario GitHub | Responsabilidades |
 |---|---|---|
-| Franklin Isaac Callejas Treminio | [@FICT1](https://github.com/FICT1) | Creación del repositorio y estructura del proyecto, dependencia JDBC en `pom.xml`, conexión centralizada (`DatabaseConnection`), `AlertUtil`, ventana principal (`MainView` / `MainController`), script `gestion_citas.sql` y configuración de credenciales locales. |
+| Franklin Isaac Callejas Treminio | [@FICT1](https://github.com/FICT1) | Creación del repositorio y estructura del proyecto, dependencia JDBC en `pom.xml`, conexión centralizada (`DatabaseConnection`), `AlertUtil`, ventana principal (`MainView` / `MainController`) y script `gestion_citas.sql`. |
 | Daris Dayana Mayorga Oyes | [@darismayorga](https://github.com/darismayorga) | Módulo de clientes: modelo `Cliente`, `ClienteDAO` (CRUD y búsqueda), `ClienteController` y `ClienteView.fxml`. |
 | Luis Xavier Aburto Mantilla | [@LXaburtoM](https://github.com/LXaburtoM) | Módulo de citas técnicas: modelo `CitaTecnica`, `CitaTecnicaDAO` (CRUD con JOIN), `CitaController` y `CitaView.fxml`, reestructuración de `AlertUtil`. |
-| Daniella Alexandra Rocha Palacios | [@vybdani](https://github.com/vybdani) | Diseño completo de la interfaz gráfica (vistas FXML y estilos), validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, correcciones generales y README. |
+| Daniella Alexandra Rocha Palacios | [@vybdani](https://github.com/vybdani) | Diseño completo de la interfaz gráfica (vistas FXML y estilos), validaciones (`ValidacionUtil`, correo con formato y sin duplicados, longitudes, estados permitidos), manejo de `SQLException` con mensajes comprensibles, filtrado de citas con `PreparedStatement`, actualización de tablas y ComboBox sin reiniciar, configuración de credenciales locales (`db.properties`), correcciones generales y README. |
 
 ---
 
@@ -56,15 +56,25 @@ psql -U postgres -d gestion_citas -f gestion_citas.sql
 
 ### 3. Configurar las credenciales locales
 
-La conexión está centralizada en `src/main/java/ni/edu/uam/evaluacion_javafx_citastecnicas/util/DatabaseConnection.java`, con estos valores:
+Las credenciales no están en el código: la clase `DatabaseConnection` las lee del archivo `db.properties`, ubicado en la raíz del proyecto. Ese archivo está en `.gitignore`, por lo que cada integrante usa su propia contraseña y nunca se sube al repositorio.
 
-| Parámetro | Valor |
+1. Copiar el archivo de ejemplo:
+
+```bash
+cp db.properties.example db.properties
+```
+
+En Windows (cmd): `copy db.properties.example db.properties`
+
+2. Abrir `db.properties` y escribir la contraseña local de PostgreSQL:
+
+| Propiedad | Valor |
 |---|---|
-| URL | `jdbc:postgresql://localhost:5432/gestion_citas` |
-| Usuario | `postgres` |
-| Contraseña | la contraseña local de cada integrante |
+| `db.url` | `jdbc:postgresql://localhost:5432/gestion_citas` |
+| `db.usuario` | `postgres` |
+| `db.contrasena` | la contraseña local de cada integrante |
 
-> **Pendiente:** documentar aquí el mecanismo final de credenciales locales. Las contraseñas reales no deben subirse al repositorio.
+Si el archivo no existe o le falta un dato, la aplicación lo indica al abrirse.
 
 ### 4. Ejecutar la aplicación
 
@@ -82,7 +92,7 @@ La conexión está centralizada en `src/main/java/ni/edu/uam/evaluacion_javafx_c
 
 En Windows (cmd o PowerShell): `mvnw.cmd clean javafx:run`
 
-La barra inferior de la ventana indica si la conexión con PostgreSQL fue exitosa.
+El indicador de la esquina superior derecha muestra si la conexión con PostgreSQL fue exitosa.
 
 ---
 
@@ -149,7 +159,7 @@ src/main/resources/ni/edu/uam/evaluacion_javafx_citastecnicas/
 
 | Código | Funcionalidad | Implementación |
 |---|---|---|
-| RF01 | Conexión JDBC centralizada y manejo de errores | `DatabaseConnection.getConnection()` y `probarConexion()`; el estado se muestra en la barra inferior |
+| RF01 | Conexión JDBC centralizada y manejo de errores | `DatabaseConnection.getConnection()` y `probarConexion()`; el estado se muestra en la esquina superior derecha |
 | RF02 | CRUD de clientes con formulario y TableView | `ClienteController` + `ClienteDAO` |
 | RF03 | CRUD de citas; cliente elegido en ComboBox | `CitaController` + `CitaTecnicaDAO`; el ComboBox lista clientes activos |
 | RF04 | Tabla de citas con ID, cliente, fecha, hora, servicio y estado | Consulta con `INNER JOIN` entre `cita_tecnica` y `cliente` |
