@@ -84,4 +84,19 @@ public class Cliente {
     public String toString() {
         return getNombreCompleto();
     }
+
+    // Dos clientes son el mismo si tienen el mismo id. Permite que el ComboBox de citas
+    // conserve el cliente seleccionado cuando la lista se recarga desde la base de datos.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cliente)) return false;
+        Cliente otro = (Cliente) o;
+        return id != 0 && id == otro.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
 }
