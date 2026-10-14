@@ -7,8 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.dao.ClienteDAO;
 import ni.edu.uam.evaluacion_javafx_citastecnicas.model.Cliente;
-
-import java.util.Optional;
+import ni.edu.uam.evaluacion_javafx_citastecnicas.util.AlertUtil;
 
 public class ClienteController {
 
@@ -85,18 +84,18 @@ public class ClienteController {
         );
 
         if (clienteDAO.guardar(nuevo)) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Cliente guardado correctamente.");
+            AlertUtil.mostrarInfo("Éxito", "Cliente guardado correctamente.");
             limpiarFormulario();
             cargarClientes();
         } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar el cliente.");
+            AlertUtil.mostrarError("Error", "No se pudo guardar el cliente.");
         }
     }
 
     @FXML
     private void handleActualizar() {
         if (clienteSeleccionado == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Seleccione un cliente de la tabla para actualizar.");
+            AlertUtil.mostrarAdvertencia("Advertencia", "Seleccione un cliente de la tabla para actualizar.");
             return;
         }
 
@@ -109,43 +108,40 @@ public class ClienteController {
         clienteSeleccionado.setActivo(chkActivo.isSelected());
 
         if (clienteDAO.actualizar(clienteSeleccionado)) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Cliente actualizado correctamente.");
+            AlertUtil.mostrarInfo("Éxito", "Cliente actualizado correctamente.");
             limpiarFormulario();
             cargarClientes();
         } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo actualizar el cliente.");
+            AlertUtil.mostrarError("Error", "No se pudo actualizar el cliente.");
         }
     }
 
     @FXML
     private void handleEliminar() {
         if (clienteSeleccionado == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Seleccione un cliente de la tabla para eliminar.");
+            AlertUtil.mostrarAdvertencia("Advertencia", "Seleccione un cliente de la tabla para eliminar.");
             return;
         }
 
         if (clienteDAO.tieneCitasAsociadas(clienteSeleccionado.getId())) {
-            mostrarAlerta(
-                    Alert.AlertType.WARNING,
+            AlertUtil.mostrarAdvertencia(
                     "No se puede eliminar",
                     "El cliente seleccionado tiene citas técnicas asociadas y no puede ser eliminado de la base de datos."
             );
             return;
         }
 
-        Alert alertConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        alertConfirmacion.setTitle("Confirmar Eliminación");
-        alertConfirmacion.setHeaderText(null);
-        alertConfirmacion.setContentText("¿Está seguro de que desea eliminar al cliente '" + clienteSeleccionado.getNombreCompleto() + "'?");
-
-        Optional<ButtonType> result = alertConfirmacion.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        boolean confirmar = AlertUtil.mostrarConfirmacion(
+                "Confirmar Eliminación",
+                "¿Está seguro de que desea eliminar al cliente '" + clienteSeleccionado.getNombreCompleto() + "'?"
+        );
+        if (confirmar) {
             if (clienteDAO.eliminar(clienteSeleccionado.getId())) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Cliente eliminado correctamente.");
+                AlertUtil.mostrarInfo("Éxito", "Cliente eliminado correctamente.");
                 limpiarFormulario();
                 cargarClientes();
             } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el cliente.");
+                AlertUtil.mostrarError("Error", "No se pudo eliminar el cliente.");
             }
         }
     }
@@ -167,17 +163,9 @@ public class ClienteController {
 
     private boolean validarFormulario() {
         if (txtNombres.getText().trim().isEmpty() || txtApellidos.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Campos requeridos", "Los campos Nombres y Apellidos no pueden estar vacíos.");
+            AlertUtil.mostrarAdvertencia("Campos requeridos", "Los campos Nombres y Apellidos no pueden estar vacíos.");
             return false;
         }
         return true;
-    }
-
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }
